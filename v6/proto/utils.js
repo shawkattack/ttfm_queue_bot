@@ -1,7 +1,7 @@
 var BotModule = require('./botmodule');
 const moduleName = 'Utils';
 
-var UtilsModule = function (dependencies, requiredDependencies) {
+var UtilsModule = function () {
     var dependencies = arguments[0];
     var requiredDependencies = arguments[1];
     this.dependencies = dependencies;

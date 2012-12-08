@@ -1,8 +1,11 @@
-var UtilsProto = require('./proto/utils.js');
+var UtilsModule = require('./proto/utils.js');
 
-var Utils = function (defaults) {
-    this.prototype = new UtilsProto();
-    this.addDependencies(defaults);
-}
+var Utils = function () {
+    var dependencies = arguments[0];
+    this.dependencies = dependencies;
+    this.requiredDependencies = [];
+};
+Utils.prototype = new UtilsModule(Utils.prototype.dependencies,
+				  Utils.prototype.requiredDependencies);
 
-module.exports.UtilsModule = Utils;
+module.exports = Utils;

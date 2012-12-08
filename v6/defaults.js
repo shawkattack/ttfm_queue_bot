@@ -1,4 +1,4 @@
-module.exports.defaults = {
+module.exports = {
     utils: './proto/utils.js',
     queue: './proto/queue.js',
     aways: './proto/aways.js',

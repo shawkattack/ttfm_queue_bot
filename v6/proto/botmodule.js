@@ -23,6 +23,8 @@ var BotModule = function (dependencies, requiredDependencies, moduleName) {
     if (errorString !== '') {
 	throw new Error(errorString);
     }
+    this.requiredDependencies = requiredDependencies;
+    console.log(requiredDependencies);
 }
 BotModule.prototype.__proto__ = events.prototype;
 
@@ -36,6 +38,10 @@ BotModule.prototype.addDependencies = function (dependencies) {
 
 BotModule.prototype.getDependencies = function () {
     return this.dependencies;
+}
+
+BotModule.prototype.getRequiredDependencies = function () {
+    return this.requiredDependencies;
 }
 
 module.exports = BotModule;
