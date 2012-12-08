@@ -1,0 +1,22 @@
+ This software is Copr. David Scherzinger, 2011-2012.
+ Any portion of this code authored by other individuals has been marked.
+
+ I give full rights to use and distribute any source, concepts, or features
+ included in this software package, provided that:
+ 1. You provide proper credit to me by either my full name or github username
+    (shawkattack) for any content used. You provide proper credit to other
+    authors as their information is presented in any authorship comments.
+ 2. Unless your name is provided in authorship comments on the master copy of
+    any of these documents, you MAY NOT assume or claim ownership of any aspect
+    of this software. If you copied anything from these documents, you did not
+    write it.
+ 3. Any product or template that uses any content from this document must not
+    be intrinsically and/or intentionally designed for causing any type of
+    detriment to people, society, or this planet's ecosystem.
+ 4. YOU ASSUME ALL LIABILITY FOR ANY NEGATIVE CONSEQUENCES THAT ARISE AS A
+    RESULT OF YOUR USE OF ANY CONTENT IN THESE FILES. In other words, if
+    you, for whatever reason, absolutely must borrow my code for your
+    purposes, and you don't integrate it into your product properly, and
+    people die or become badly injured, or you crash a server as a result of
+    your sloppy practices, IT IS YOUR FAULT for not adapting the code and
+    correcting any errors that may arise.
