@@ -1,0 +1,4 @@
+exports.auth = 'auth+live+af37138dbc7624fcde828aabb3dac2907783b41a';
+exports.user_id = '5f12dab78434498510004546';
+exports.room_id = '2749bacde7214700754726de';
+exports.oog_kick_message = 'Please read the room rules';

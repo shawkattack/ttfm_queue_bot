@@ -1,0 +1,68 @@
+/////WARNING/////
+The bot is curently undergoing a structural reorganization.
+Do not use any of the files in the v6 folder.
+/////WARNING/////
+
+This is a minimally-interactive bot that manages a DJ queue for a turntable.fm
+room.
+
+If your room uses a queue system, and you want a bot that is silent most of the
+time, this is the bot for the job!
+
+The commands were designed so no slashes, dashes, hashes, or dots are
+required to activate them, but are easy to remember. Asking the bot for
+something is intuitive!
+The commands were also designed so they are difficult to activate accidentally
+through conversation, which prevents unwanted bot behavior.
+Finally, all bot features have been designed with minimal risk to the bot and
+to other users in mind. Even commands that could potentially be abused require
+significant effort to do so.
+
+Most importantly, because this bot is minimally designed, it is STABLE.
+Unless otherwise noted, every bot feature has been tested for concurrency
+issues and high input volume, and will always behave properly, if only a little
+slow. It will only crash due to maintenance of turntable.fm, hardware failures,
+or system resets.
+
+Current features:
+ - Users can add or remove themselves from the queue
+ - Users can ask for their current position in the queue
+ - The bot will automatically call the next available user in the queue
+   when a spot opens up, and guard that spot until the user steps up
+ - If a called user does not take her spot, the bot will automatically remove
+   her from the queue and call the next available user in the queue
+ - The bot can output the current queue to the chat window
+ - The bot will automatically remove users form the queue if they leave
+ - DJs can specify that they need to refresh, and the bot will guard their
+   spots
+ - Queued users can specify that they will be afk, and the bot will skip them
+   when considering who to call to preserve queue order
+ - DJs can mark themselves with "kick me" notes - the bot can kick DJs when
+   the queue fills up or after a specified number of songs
+ - If a DJ is playing off-genre, users can vote to remove the DJ. The DJ is
+   given a warning before being removed
+ - The bot can output a list of commands to the chat window
+ - The bot can output instructions for any non-moderator command to the chat
+   window
+ - Moderators can rearrange the queue
+ - Moderators have access to a shortcut that activates the off-genre warning
+
+Features slated for the near future:
+ - Suggest features in the comments!
+
+If you have a node server installed, running the bot is simple! Just follow
+these steps:
+1. Create a turntable.fm account for your bot
+2. Log in to your bot account and use this bookmarklet to get account info:
+   http://alaingilbert.github.com/Turntable-API/bookmarklet.html
+   Paste the data into a new file called config.js, and format it like the
+   sample.
+3. Download the bot code (or copy it into a file called bot.js)
+4. Make sure bot.js and config.js are in the same folder
+5. Run node bot.js
+
+For examples of how to use the commands, please refer to EXAMPLES
+
+If you have any questions about how to use the commands, please feel free to
+ask! Suggestions for more commands and features are always welcome :)
+

@@ -1,0 +1,72 @@
+USAGE EXAMPLES:
+
+Queueing commands:
+q+ - Adds you to the queue.
+q- - Removes you from the queue.
+q? - Prints the current queue to chat.
+myspot - Prints your spot in the queue to chat.
+
+AFK commands:
+away - (as DJ) Guards your DJ spot for 45 seconds.
+away - (while on queue) Guards your queue spot for 10 minutes.
+       During this time, the bot will skip you when it decides who to call
+       next.
+away - (neither on queue or on decks) DOES NOTHING.
+back - Cancels any previously issued "away" command. THE BOT WILL NOT SAY
+       ANYTHING IF YOU USE THIS COMMAND, but it still works.
+       Jumping on the decks will achieve the same result.
+
+Flagging commands:
+oog - Marks the current song as out-of-genre. If enough people issue this
+      command, the bot will warn the current DJ to skip and downvote. If even
+      more people issue this command, the current DJ will be removed.
+.s  - (mod only) Behaves the same as oog, except it issues the skip warning
+      immediately. If you use this, the bot expects you to handle the problem
+      on your own and will not remove the DJ.
+
+Help commands:
+commands  - Prints a list of commands.
+help      - Prints help text for the help command.
+help help - Does the same as "help"
+help oog  - Prints the help text for the oog command.
+
+"Kick Me" note commands:
+kickme                    - Forces the bot to remove you from the decks the
+                            next time your song ends.
+boot me after 4           - Forces the bot to remove you after you play 4
+                            more songs.
+removeme on q             - Forces the bot to remove you when there are more
+                            people on queue than there are DJ spots.
+remove me on q or after 9 - Tells the bot to remove you after 9 songs or when
+                            the queue fills up, whichever happens first.
+cancel kickme             - Cancels any "Kick Me" notes you've issued
+boot me cancel            - Does the same as "cancel kickme"
+
+Mod commands (private chat only):
+mod shawkattack  - Gives the user shawkattack mod status.
+mod @shawkattack - Gives the user @shawkattack mod status. If @shawkattack
+                   does not exist, gives mod status to the user shawkattack
+demod asdf       - Revokes the user asdf's mod status.
+unmod asdf       - Same as demod asdf
+
+modlock off      - Turns off modlock
+modlock on       - Turns on modlock
+
+NOTES:
+- All commands are case-insensitive. "OoG" works just as well as "oog".
+- All commands allow for an optional forward slash "/" in front.
+  "/oog" and "oog" are both valid, for example.
+- The bot needs mod status to operate properly. Better yet, create your
+  room in the bot's account so it can never lose mod status.
+- The bot is set by default to modlock the room. Nobody can gain or lose
+  moderator status unless a mod issues a command to the bot through private
+  chat. This will be made optional in a future version.
+
+NOTES ON KICK ME:
+- You can use any of the verbs "kick", "boot", or "remove" interchangeably.
+- The space between your verb and the word "me" is optional.
+- The order in which you specify options does not matter.
+  "on q or after 4" is the same as "after 4 or on q".
+- The bot prohibits parking for more than 10 songs.
+- ISSUING A NEW KICK ME NOTE WILL OVERRIDE THE PREVIOUS ONE.
+  This is to avoid having to spam chat with cancels and re-issues.
