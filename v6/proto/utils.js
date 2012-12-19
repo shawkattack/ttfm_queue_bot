@@ -1,17 +1,10 @@
 var BotModule = require('./botmodule');
 const moduleName = 'Utils';
 
-var UtilsModule = function () {
-    var dependencies = arguments[0];
-    var requiredDependencies = arguments[1];
-    this.dependencies = dependencies;
-    this.requiredDependencies = ['bot'];
-    if (requiredDependencies !== undefined && requiredDependencies !== null) {
-	this.requiredDependencies = this.requiredDependencies.concat(requiredDependencies);
-    }
+var UtilsModule = function (depList) {
+    BotModule.call(this,['bot'],moduleName);
+    this.addDependencies(depList);
 };
-UtilsModule.prototype = new BotModule(UtilsModule.prototype.dependencies,
-				      UtilsModule.prototype.requiredDependencies);
 
 // Snags the current song
 UtilsModule.prototype.snag = function (songID) {
