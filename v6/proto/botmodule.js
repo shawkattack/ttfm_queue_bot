@@ -10,8 +10,7 @@ var BotModule = function (depList, moduleName) {
     // Error checking so as not to accidentally create a closure if something
     // is wrong. Memory leaks are a bitch.
     if (typeof moduleName !== 'string' || moduleName === '') {
-	throw new Error('Attempting to create an improperly-named '+
-			'BotModule');
+	throw new Error('Attempting to create an improperly-named BotModule');
     }
     try {
 	if (depList !== undefined && depList !== null) {
@@ -36,7 +35,8 @@ var BotModule = function (depList, moduleName) {
 	for (var x in __DepList) {
 	    // Store a reference to the module locally
 	    // If it doesn't exist, module loader will throw an error
-	    __DepObject[x] = depLoader.getModule(x);
+	    var depName = __DepList[x];
+	    __DepObject[depName] = depLoader.getModule(depName);
 	}
     };
 

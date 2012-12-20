@@ -53,12 +53,12 @@ var ModuleLoader = function () {
 
     this.getModule = function (moduleName) {
 	var tmp = __modules[moduleName];
-	if (tmp === undefined || tmp === null) {
-	    throw new Error('Module '+moduleName+' not found.');
-	}
-	else if (name === 'bot') {
+	if (moduleName === 'bot') {
 	    return __bot;
 	}
+	else if (tmp === undefined || tmp === null) {
+	    throw new Error('Module '+moduleName+' not found.');
+	}	
 	else {
 	    return __modules[moduleName];
 	}
