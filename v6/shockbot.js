@@ -1,28 +1,17 @@
 var Bot = require('ttapi');
-var defaults = require('./defaults.js');
+var ModuleLoader = require('./moduleLoader.js');
 
 var ShockBot = function (configFile) {
     // Initialize config and module data
     this.config = require(configFile);
-    this.modules = {};
 
     // Set up le bot
     var botAuth = this.config.botAuth;
     this.bot = new Bot(botAuth.auth, botAuth.userId, botAuth.roomId);
 
-    // Make shortcuts and load in default dependencies
-    var config = this.config;
-    var modules = this.modules;
-    for (var d in defaults) {
-	try {
-	    defaults[d] = require(defaults[d]);
-            modules[d] = new (defaults[d])({});
-	    console.log('[O] Loaded default module '+d);
-	}
-	catch (e) {
-	    console.log('[X] Failed to load module '+d);
-	}
-    }
+    var moduleLoader = ModuleLoader;
+    moduleLoader.setBot(this.bot);
+    moduleLoader.init();
 /* Use this later
     for (var f in modules[d]) {
 	if (modules[d][f].override) {
@@ -31,9 +20,6 @@ var ShockBot = function (configFile) {
 	}
     }
 */
-    modules.utils = require(config.modules.utils);
-    modules.utils = new (modules.utils)({});
-    console.log(modules.utils.getRequiredDependencies());
 }
 
 module.exports = ShockBot;

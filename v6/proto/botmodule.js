@@ -1,5 +1,5 @@
 var events = require('events');
-var depLoader = require('../moduleloader.js');
+var depLoader = require('../moduleLoader.js');
 
 // Create a closure so all of these locals are hidden but non-static.
 var BotModule = function (depList, moduleName) {
@@ -10,7 +10,7 @@ var BotModule = function (depList, moduleName) {
     // Error checking so as not to accidentally create a closure if something
     // is wrong. Memory leaks are a bitch.
     if (typeof moduleName !== 'string' || moduleName === '') {
-	throw new Error('Error: Attempting to create an improperly-named '+
+	throw new Error('Attempting to create an improperly-named '+
 			'BotModule');
     }
     try {
@@ -19,7 +19,7 @@ var BotModule = function (depList, moduleName) {
 	}
     }
     catch (e) {
-	throw new Error('Error: Proper list of dependency names not provided '+
+	throw new Error('Proper list of dependency names not provided '+
 			'in module '+__ModuleName);
     }
 
@@ -48,10 +48,15 @@ var BotModule = function (depList, moduleName) {
 	    }
 	}
 	catch (e) {
-	    throw new Error('Error: Proper list of dependency names not provided '+
+	    throw new Error('Proper list of dependency names not provided '+
 			    'in module '+__ModuleName);
 	}
     };
+
+    // Why not?
+    this.getDependencyList = function () {
+	return __DepList;
+    }
 };
 
 module.exports = BotModule;
