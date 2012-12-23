@@ -197,6 +197,11 @@ var Utils = function (depList) {
 
 	__oogVotes[id] = true;
 	var numVotes = this.objectSize(__oogVotes);
+	if (numVotes > __oogKickThresh) {
+	    bot.remDj(__currentDj);
+	    return;
+	}
+
 	if (numVotes > __oogWarnThresh || warn) {
 	    if (!__oogWarned) {
 		__oogWarned = true;
