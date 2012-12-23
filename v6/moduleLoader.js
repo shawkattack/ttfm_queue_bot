@@ -42,26 +42,26 @@ var ModuleLoader = function () {
 	    }
 	    if (__modules[name] === undefined || __modules[name] === null) {
 		__modules[name] = require(defaultInfo[name]);
+		__modules[name] = new (__modules[name])();
 	    }
 	}
 	
 	for (var name in __modules) {
-	    console.log(__modules[name].getDependencyList());
 	    __modules[name].install();
 	}
     }
 
     this.getModule = function (moduleName) {
-	var tmp = __modules[moduleName];
 	if (moduleName === 'bot') {
 	    return __bot;
-	}
-	else if (tmp === undefined || tmp === null) {
-	    throw new Error('Module '+moduleName+' not found.');
 	}	
 	else {
 	    return __modules[moduleName];
 	}
+    }
+
+    this.getAllModules = function () {
+	return __modules;
     }
 }
 
