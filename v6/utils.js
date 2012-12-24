@@ -11,6 +11,9 @@ var Utils = function (depList) {
     var __oogVotes = {};
     var __oogWarned = false;
     var __oogKickTimeout = null;
+
+    var __songTimer = null;
+    var __stuckTimer = null;
     
     var __currentSong = null;
     var __hasVoted = false;
@@ -20,6 +23,8 @@ var Utils = function (depList) {
     const __oogWarnThresh = 2;
     const __oogKickThresh = 3;
     const __oogKickTime = 15*1000;
+    const __songLeeway = 7*1000;
+    const __skipLeeway = 10*1000;
     
     UtilsModule.call(this,['aways']);
     this.addDependencies(depList);
@@ -66,6 +71,7 @@ var Utils = function (depList) {
 	    for (var i in mods) {
 		__userListIN[userObj.id].mod = true;
 	    }
+	    this.doVote(data.room.metadata);
 	});
 	
 	bot.on('newsong', function (data) {
@@ -76,6 +82,38 @@ var Utils = function (depList) {
 	    __currentSong = data.room.metadata.current_song._id;
 	    __currentDj = data.room.metadata.current_dj;
 	    __hasVoted = false;
+	    
+	    if (__songTimer) {
+		clearTimeout(__songTimer);
+		__songTimer = null;
+	    }
+	    if (__stuckTimer) {
+		clearTimeout(__stuckTimer);
+		__stuckTimer = null;
+		bot.speak('Thank you! :)');
+	    }
+	    var songLength = data.room.metadata.current_song.metadata.length*1000;
+	    __songTimer = setTimeout(function () {
+		__songTimer = null;
+		if (__currentDj === bot.userId) {
+		    bot.speak('I think I might be stuck :(');
+		}
+		else {
+		    var name = this.getUserById(__currentDj);
+		    name = this.tagify(name);
+		    bot.speak('Hey, '+name+', you\'re stuck! Please skip!');
+		}
+		__stuckTimer = setTimeout(function () {
+		    __stuckTimer = null;
+		    if (__currentDj === bot.userId) {
+			bot.speak('Sorry about that :P');
+			bot.stopSong();
+		    }
+		    else {
+			bot.remDj(__currentDj);
+		    }
+		}, __skipLeeway);
+	    }, songLength+__songLeeway);
 	});
 
 	bot.on('add_dj', function (data) {
@@ -87,6 +125,42 @@ var Utils = function (depList) {
 	    var idx = this.isDJ(id);
 	    if (idx !== false) {
 		__djList.splice(idx,1);
+	    }
+	});
+
+	bot.on('registered', function (data) {
+	    var userObj = {
+		name: data.user[0].name,
+		id:   data.user[0].userid };
+	    __userListIN[userObj.id] = userObj;
+	    __userListNI[userObj.name.toLowerCase()] = userObj;
+
+	    if (!this.isMod(userObj.id)) {
+		bot.roomInfo(function (data) {
+		    var mods = data.room.metadata.moderator_id;
+		    for (var i in mods) {
+			if (mods[i] === userObj.id) {
+			    userObj.mod = true;
+			    return;
+			}
+		    }
+		});
+	    }
+	});
+	bot.on('deregistered', function (data) {
+	    var id = data.user[0].userid;
+	    var name = data.user[0].name;
+	    delete __userListIN[id];
+	    delete __userListNI[name.toLowerCase()];
+	});
+	bot.on('update_user', function (data) {
+	    if (data.name) {
+		var udata = this.getUserById(data.userid);
+		if (data.name !== udata.name) {
+		    __userListNI[udata.name.toLowerCase()] = undefined;
+		    udata.name = data.name;
+		    __userListNI[data.name.toLowerCase()] = udata;
+		}
 	    }
 	});
 	
