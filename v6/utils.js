@@ -100,6 +100,51 @@ var Utils = function (depList) {
 	bot.on('update_votes', function (data) {
 	    this.doVote(data.room.metadata);
 	});
+
+	bot.on('pmmed', function (data) {
+	    var sender = data.senderid;
+	    if (this.isMod(sender)) {
+		var reData = null;
+		if ((reData = data.text.match(/^ *mod +(\S.*?) *$/i))) {
+		    var user = getUserByTag(reData[1]);
+		    if (!user) {
+			bot.pm('Sorry, I can\'t find that user!',sender);
+		    }
+		    mod(user.id);
+		}
+
+		else if ((reData = data.text.match(/^ *demod +(\S.*?) *$/i))) {
+		    var user = getUserByTag(reData[1]);
+		    if (!user) {
+			bot.pm('Sorry, I can\'t find that user!',sender);
+		    }
+		    demod(user.id);
+		}
+
+		else if ((reData = data.text.match(/^ *lock *mods *$/i)) ||
+			 (reData = data.text.match(/^ *set +mod *lock +off *$/i))) {
+		    this.lockMods();
+		}
+
+		else if ((reData = data.text.match(/^ *unlock *mods *$/i)) ||
+			 (reData = data.text.match(/^ *set +mod *lock +on *$/i))) {
+		    this.unlockMods();
+		}
+	    }
+	});
+	bot.on('speak', function (data) {
+	    var sender = data.userid;
+	    var reData = null;
+	    if (this.isMod(sender)) {
+		if ((reData = data.text.match(/^ +\.s +$/i))) {
+		    this.countOOGVote(sender, true);
+		}
+	    }
+
+	    if ((reData = data.text.match(/^ +oog +$/i))) {
+		this.countOOGVote(sender, false);
+	    }
+	});
     };
     
     this.snag = function () {

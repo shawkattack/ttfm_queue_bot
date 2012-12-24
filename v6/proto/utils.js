@@ -96,6 +96,18 @@ var UtilsModule = function (depList) {
     this.doVote = function (voteData) {
     }
     this.doVote.override = true;
+
+    // Get the max number of DJs
+    this.getMaxDjs = function () {
+	return 5;
+    }
+    this.getMaxDjs.override = true;
+
+    // Get the current number of DJs
+    this.getNumDjs = function () {
+	return 0;
+    }
+    this.getNumDjs.override = true;
 };
 
 module.exports = UtilsModule;
