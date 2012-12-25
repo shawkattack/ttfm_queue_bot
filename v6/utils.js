@@ -1,6 +1,8 @@
 var UtilsModule = require('./proto/utils.js');
 
 var Utils = function (depList) {
+    var self = this;
+
     var __userListIN = {};
     var __userListNI = {};
 
@@ -30,8 +32,8 @@ var Utils = function (depList) {
     this.addDependencies(depList);
     
     var mod = function (id) {
-	var bot = this.getDep('bot');
-	var user = this.getUserById(id);
+	var bot = self.getDep('bot');
+	var user = self.getUserById(id);
 	if (!user) {
 	    return;
 	}
@@ -39,8 +41,8 @@ var Utils = function (depList) {
 	bot.addModerator(id);
     }
     var demod = function (id) {
-	var bot = this.getDep('bot');
-	var user = this.getUserById(id);
+	var bot = self.getDep('bot');
+	var user = self.getUserById(id);
 	if (!user) {
 	    return;
 	}
@@ -49,7 +51,7 @@ var Utils = function (depList) {
     }
     
     this.init = function () {
-	var bot = this.getDep('bot');
+	var bot = self.getDep('bot');
 	bot.on('roomChanged', function (data) {
 	    __djList = data.room.metadata.djs;
 	    __maxDjs = data.room.metadata.max_djs;
@@ -71,7 +73,7 @@ var Utils = function (depList) {
 	    for (var i in mods) {
 		__userListIN[userObj.id].mod = true;
 	    }
-	    this.doVote(data.room.metadata);
+	    self.doVote(data.room.metadata);
 	});
 	
 	bot.on('newsong', function (data) {
@@ -99,8 +101,8 @@ var Utils = function (depList) {
 		    bot.speak('I think I might be stuck :(');
 		}
 		else {
-		    var name = this.getUserById(__currentDj);
-		    name = this.tagify(name);
+		    var name = self.getUserById(__currentDj);
+		    name = self.tagify(name);
 		    bot.speak('Hey, '+name+', you\'re stuck! Please skip!');
 		}
 		__stuckTimer = setTimeout(function () {
@@ -122,7 +124,7 @@ var Utils = function (depList) {
 	});
 	bot.on('rem_dj', function (data) {
 	    var id = data.user[0].userid;
-	    var idx = this.isDJ(id);
+	    var idx = self.isDJ(id);
 	    if (idx !== false) {
 		__djList.splice(idx,1);
 	    }
@@ -135,7 +137,7 @@ var Utils = function (depList) {
 	    __userListIN[userObj.id] = userObj;
 	    __userListNI[userObj.name.toLowerCase()] = userObj;
 
-	    if (!this.isMod(userObj.id)) {
+	    if (!self.isMod(userObj.id)) {
 		bot.roomInfo(function (data) {
 		    var mods = data.room.metadata.moderator_id;
 		    for (var i in mods) {
@@ -155,7 +157,7 @@ var Utils = function (depList) {
 	});
 	bot.on('update_user', function (data) {
 	    if (data.name) {
-		var udata = this.getUserById(data.userid);
+		var udata = self.getUserById(data.userid);
 		if (data.name !== udata.name) {
 		    __userListNI[udata.name.toLowerCase()] = undefined;
 		    udata.name = data.name;
@@ -165,70 +167,81 @@ var Utils = function (depList) {
 	});
 	
 	bot.on('new_moderator', function (data) {
-	    this.judgeMod(data.userid);
+	    self.judgeMod(data.userid);
 	});
 	bot.on('rem_moderator', function (data) {
-	    this.judgeDemod(data.userid);
+	    self.judgeDemod(data.userid);
 	});
 	
 	bot.on('update_votes', function (data) {
-	    this.doVote(data.room.metadata);
+	    self.doVote(data.room.metadata);
 	});
 
 	bot.on('pmmed', function (data) {
 	    var sender = data.senderid;
-	    if (this.isMod(sender)) {
+	    if (self.isMod(sender)) {
 		var reData = null;
-		if ((reData = data.text.match(/^ *mod +(\S.*?) *$/i))) {
+		if ((reData = data.text.match(/^ *\/?mod +(\S.*?) *$/i))) {
 		    var user = getUserByTag(reData[1]);
 		    if (!user) {
 			bot.pm('Sorry, I can\'t find that user!',sender);
+		    }
+		    else if (user.id === bot.userId) {
+			bot.pm('Nice try, but I\'m INVINCIBLE! Muahahahaha >:D',sender);
+			return;
 		    }
 		    mod(user.id);
+		    bot.pm('Alright, you\'re the bawss! :D');
 		}
 
-		else if ((reData = data.text.match(/^ *demod +(\S.*?) *$/i))) {
+		else if ((reData = data.text.match(/^ *\/?demod +(\S.*?) *$/i))) {
 		    var user = getUserByTag(reData[1]);
 		    if (!user) {
 			bot.pm('Sorry, I can\'t find that user!',sender);
+			return;
+		    }
+		    else if (user.id === bot.userId) {
+			bot.pm('Nice try, but I\'m INVINCIBLE! Muahahahaha >:D',sender);
+			return;
 		    }
 		    demod(user.id);
+		    bot.pm('Alright... you\'re the bawss :/',sender);
 		}
 
-		else if ((reData = data.text.match(/^ *lock *mods *$/i)) ||
-			 (reData = data.text.match(/^ *set +mod *lock +off *$/i))) {
-		    this.lockMods();
+		else if ((reData = data.text.match(/^ *\/?lock *mods *$/i)) ||
+			 (reData = data.text.match(/^ *\/?set +mod *lock +off *$/i))) {
+		    self.lockMods();
 		}
 
-		else if ((reData = data.text.match(/^ *unlock *mods *$/i)) ||
-			 (reData = data.text.match(/^ *set +mod *lock +on *$/i))) {
-		    this.unlockMods();
+		else if ((reData = data.text.match(/^ *\/?unlock *mods *$/i)) ||
+			 (reData = data.text.match(/^ *\/?set +mod *lock +on *$/i))) {
+		    self.unlockMods();
 		}
 	    }
 	});
 	bot.on('speak', function (data) {
 	    var sender = data.userid;
 	    var reData = null;
-	    if (this.isMod(sender)) {
-		if ((reData = data.text.match(/^ +\.s +$/i))) {
-		    this.countOOGVote(sender, true);
+	    if (self.isMod(sender)) {
+		if ((reData = data.text.match(/^ *\/?\.s *$/i))) {
+		    self.countOOGVote(sender, true);
 		}
 	    }
 
-	    if ((reData = data.text.match(/^ +oog +$/i))) {
-		this.countOOGVote(sender, false);
+	    if ((reData = data.text.match(/^ *\/?oog *$/i))) {
+		self.countOOGVote(sender, false);
 	    }
 	});
     };
     
     this.snag = function () {
-	this.snagSong(__currentSong);
+	self.snagSong(__currentSong);
     };
     
     this.untagifyName = function (tag) {
 	// If the first character isn't an @, or if the user has an @ in their
 	// name, just return the name
-	if (tag.charAt(0) !== '@' || this.getUserByName(tag)) {
+	if (tag.charAt(0) !== '@' || self.getUserByName(tag)) {
 	    return tag;
 	}
 	// Otherwise, remove the @ tag
@@ -246,7 +259,7 @@ var Utils = function (depList) {
     };
 
     this.getUserByTag = function (name) {
-	return this.getUserByName(this.untagifyName(name));
+	return self.getUserByName(self.untagifyName(name));
     };
 
     this.isMod = function (id) {
@@ -275,8 +288,8 @@ var Utils = function (depList) {
     };
 
     this.judgeMod = function (id) {
-	var bot = this.getDep('bot');
-	var user = this.getUserById(id);
+	var bot = self.getDep('bot');
+	var user = self.getUserById(id);
 	if (!user) {
 	    // If the user data is missing, we can't do anything
 	    return;
@@ -293,8 +306,8 @@ var Utils = function (depList) {
 	}
     };
     this.judgeDemod = function (id) {
-	var bot = this.getDep('bot');
-	var user = this.getUserById(id);
+	var bot = self.getDep('bot');
+	var user = self.getUserById(id);
 	if (!user) {
 	    // If the user data is missing, we can't do anything
 	    return;
@@ -312,10 +325,10 @@ var Utils = function (depList) {
     };
 
     this.countOOGVote = function (id, warn) {
-	var bot = this.getDep('bot');
+	var bot = self.getDep('bot');
 
 	__oogVotes[id] = true;
-	var numVotes = this.objectSize(__oogVotes);
+	var numVotes = self.objectSize(__oogVotes);
 	if (numVotes > __oogKickThresh) {
 	    bot.remDj(__currentDj);
 	    return;
@@ -339,7 +352,7 @@ var Utils = function (depList) {
 	var upvotes = voteData.upvotes;
 	var downvotes = voteData.downvotes;
 	var numUsers = voteData.listeners;
-	var bot = this.getDep('bot');
+	var bot = self.getDep('bot');
 	
 	// If the oog vote has already kicked in, ignore
 	if (__oogKickTimeout) {
@@ -361,15 +374,12 @@ var Utils = function (depList) {
 	return __djList.length;
     };
     this.getNumSpots = function () {
-	var ans = this.getMaxDjs()-this.getNumDjs();
-	var aways = this.getDep('aways');
-	if (aways && aways.getNumDjAways) {
-	    ans -= aways.getNumDjAways();
-	}
-	return ans;
+	var aways = self.getDep('aways');
+	return self.getMaxDjs()-self.getNumDjs()-
+	    aways.getNumDjAways();
     }
     this.getNumUsers = function () {
-	return this.objectSize(__userListIN);
+	return self.objectSize(__userListIN);
     };
 };
 
