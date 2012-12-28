@@ -27,6 +27,8 @@ var Utils = function (depList) {
     const __oogKickTime = 15*1000;
     const __songLeeway = 7*1000;
     const __skipLeeway = 10*1000;
+
+    const __isDj = 'isDj';
     
     UtilsModule.call(this,['aways']);
     this.addDependencies(depList);
@@ -50,13 +52,17 @@ var Utils = function (depList) {
 	bot.remModerator(id);
     }
     
-    this.init = function () {
+    this.installHandlers = function () {
 	var bot = self.getDep('bot');
 	bot.on('roomChanged', function (data) {
+	    if (!data.room) {
+		console.log(data);
+		return;
+	    }
 	    __djList = data.room.metadata.djs;
 	    __maxDjs = data.room.metadata.max_djs;
 	    __currentDj = data.room.metadata.current_dj;
-	    __currentSong = data.room.metadata.currentSong;
+	    __currentSong = data.room.metadata.current_song;
 	    if (__currentSong) {
 		__currentSong = __currentSong._id;
 	    }
@@ -71,13 +77,15 @@ var Utils = function (depList) {
 	    }
 	    var mods = data.room.metadata.moderator_id;
 	    for (var i in mods) {
-		__userListIN[userObj.id].mod = true;
+		if (__userListIN[mods[i]]) {
+		    __userListIN[mods[i]].mod = true;
+		}
 	    }
 	    self.doVote(data.room.metadata);
 	});
 	
 	bot.on('newsong', function (data) {
-	    cancelTimeout(__oogKickTimeout);
+	    clearTimeout(__oogKickTimeout);
 	    __oogKickTimeout = null;
 	    __oogVotes = {};
 	    __oogWarned = false;
@@ -101,8 +109,8 @@ var Utils = function (depList) {
 		    bot.speak('I think I might be stuck :(');
 		}
 		else {
-		    var name = self.getUserById(__currentDj);
-		    name = self.tagify(name);
+		    var name = self.getUserById(__currentDj).name;
+		    name = self.tagifyName(name);
 		    bot.speak('Hey, '+name+', you\'re stuck! Please skip!');
 		}
 		__stuckTimer = setTimeout(function () {
@@ -124,7 +132,7 @@ var Utils = function (depList) {
 	});
 	bot.on('rem_dj', function (data) {
 	    var id = data.user[0].userid;
-	    var idx = self.isDJ(id);
+	    var idx = self.isDj(id);
 	    if (idx !== false) {
 		__djList.splice(idx,1);
 	    }
@@ -138,8 +146,11 @@ var Utils = function (depList) {
 	    __userListNI[userObj.name.toLowerCase()] = userObj;
 
 	    if (!self.isMod(userObj.id)) {
-		bot.roomInfo(function (data) {
-		    var mods = data.room.metadata.moderator_id;
+		bot.roomInfo(false, function (data2) {
+		    if (!data2.room) {
+			console.log(data2);
+		    }
+		    var mods = data2.room.metadata.moderator_id;
 		    for (var i in mods) {
 			if (mods[i] === userObj.id) {
 			    userObj.mod = true;
@@ -182,20 +193,21 @@ var Utils = function (depList) {
 	    if (self.isMod(sender)) {
 		var reData = null;
 		if ((reData = data.text.match(/^ *\/?mod +(\S.*?) *$/i))) {
-		    var user = getUserByTag(reData[1]);
+		    var user = self.getUserByTag(reData[1]);
 		    if (!user) {
 			bot.pm('Sorry, I can\'t find that user!',sender);
+			return;
 		    }
 		    else if (user.id === bot.userId) {
 			bot.pm('Nice try, but I\'m INVINCIBLE! Muahahahaha >:D',sender);
 			return;
 		    }
 		    mod(user.id);
-		    bot.pm('Alright, you\'re the bawss! :D');
+		    bot.pm('Alright, you\'re the bawss! :D',sender);
 		}
 
 		else if ((reData = data.text.match(/^ *\/?demod +(\S.*?) *$/i))) {
-		    var user = getUserByTag(reData[1]);
+		    var user = self.getUserByTag(reData[1]);
 		    if (!user) {
 			bot.pm('Sorry, I can\'t find that user!',sender);
 			return;
@@ -209,14 +221,19 @@ var Utils = function (depList) {
 		}
 
 		else if ((reData = data.text.match(/^ *\/?lock *mods *$/i)) ||
-			 (reData = data.text.match(/^ *\/?set +mod *lock +off *$/i))) {
+			 (reData = data.text.match(/^ *\/?set +mod *lock +on *$/i))) {
 		    self.lockMods();
+                    bot.pm('Okie dokie, I\'ll lock down mods and demods',sender);
 		}
 
 		else if ((reData = data.text.match(/^ *\/?unlock *mods *$/i)) ||
-			 (reData = data.text.match(/^ *\/?set +mod *lock +on *$/i))) {
+			 (reData = data.text.match(/^ *\/?set +mod *lock +off *$/i))) {
 		    self.unlockMods();
+                    bot.pm('Mods and demods are in your hands again!',sender);
 		}
+                else if ((reData = data.text.match(/^ *\/?snag *$/i))) {
+                    self.snag();
+                }
 	    }
 	});
 	bot.on('speak', function (data) {
@@ -250,7 +267,7 @@ var Utils = function (depList) {
 	}
     };
 
-    this.getUserByID = function (id) {
+    this.getUserById = function (id) {
 	return __userListIN[id];
     };
 
@@ -265,13 +282,13 @@ var Utils = function (depList) {
     this.isMod = function (id) {
 	// Extra logic to return false in case other devs are type-obsessive
 	var user = null;
-	if (!(user = getUserById(id)) && !(user.mod)) {
+	if (!(user = self.getUserById(id)) || !(user.mod)) {
 	    return false;
 	}
 	return true;
     };
     
-    this.isDJ = function (id) {
+    this.isDj = function (id) {
 	for (var i in __djList) {
 	    if (__djList[i] === id) {
 		return i;
@@ -367,6 +384,9 @@ var Utils = function (depList) {
 	}
     };
 
+    this.getDjs = function () {
+        return __djList;
+    }
     this.getMaxDjs = function () {
 	return __maxDjs;
     }    
@@ -375,8 +395,15 @@ var Utils = function (depList) {
     };
     this.getNumSpots = function () {
 	var aways = self.getDep('aways');
+        var djAways = aways.getAways(__isDj);
+        var numAwayDjs = self.objectSize(djAways);
+        for (var i in __djList) {
+            if (djAways[__djList[i]]) {
+                numAwayDjs--;
+            }
+        }
 	return self.getMaxDjs()-self.getNumDjs()-
-	    aways.getNumDjAways();
+	    numAwayDjs;
     }
     this.getNumUsers = function () {
 	return self.objectSize(__userListIN);

@@ -1,12 +1,18 @@
-var events = require('events');
-var depLoader = require('../moduleLoader.js');
+var EventEmitter = require('events').EventEmitter;
 
 // Create a closure so all of these locals are hidden but non-static.
 var BotModule = function (depList, moduleName) {
+    var depLoader = require('../moduleLoader.js');
     var __depList = [];
     var __moduleName = '';
     var __depObject = {};
     
+    // Allow for event throwing/handling
+    EventEmitter.call(this);
+    for (var i in EventEmitter.prototype) {
+	this[i] = EventEmitter.prototype[i];
+    }
+
     // Error checking so as not to accidentally create a closure if something
     // is wrong. Memory leaks are a bitch.
     if (typeof moduleName !== 'string' || moduleName === '') {
@@ -49,8 +55,8 @@ var BotModule = function (depList, moduleName) {
 	// Detach module loader
 	depLoader = null;
 
-	// Call any initialization code
-	this.init();
+	// Call any code that installs event handlers
+	this.installHandlers();
     };
 
     // Add a list of dependencies (or a single one)
@@ -77,9 +83,11 @@ var BotModule = function (depList, moduleName) {
     }
 
     // Override if any initialization must be done that relies on dependencies
-    // Can be ignored most of the time
-    this.init = function () {
+    // Can be ignored most of the time, but warning is in place to remind
+    this.installHandlers = function () {
     }
+    this.installHandlers.override = true;
 };
+BotModule.prototype.__proto__ = EventEmitter.prototype;
 
 module.exports = BotModule;

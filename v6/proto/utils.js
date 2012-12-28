@@ -54,10 +54,10 @@ var UtilsModule = function (depList) {
     this.untagifyName.override = true;
     
     // Gets info about a user by hex id
-    this.getUserByID = function (id) {
+    this.getUserById = function (id) {
 	return undefined;
     };
-    this.getUserByID.override = true;
+    this.getUserById.override = true;
     
     // Gets info about a user by their name
     this.getUserByName = function (name) {
@@ -72,10 +72,10 @@ var UtilsModule = function (depList) {
     this.isMod.override = true;
     
     // Determines if a user is a DJ (by ID)
-    this.isDJ = function (id) {
+    this.isDj = function (id) {
 	return false;
     };
-    this.isDJ.override = true;
+    this.isDj.override = true;
     
     // Determines how to handle mod actions
     this.judgeMod = function (id) {

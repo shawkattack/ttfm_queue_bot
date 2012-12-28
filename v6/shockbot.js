@@ -24,6 +24,7 @@ var ShockBot = function (configFile) {
     moduleLoader = ModuleLoader = null;
 
     // Join the room
+    this.bot.roomId = botAuth.roomId; // Temp fix until Alain changes the code
     this.bot.roomRegister(botAuth.roomId);
 }
 
