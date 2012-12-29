@@ -30,7 +30,6 @@ var Queue = function (depList) {
 	var utils = self.getDep('utils');
 	var aways = self.getDep('aways');
 	var kicks = self.getDep('kicks');
-	console.log(kicks);
 
 	bot.on('registered', function (data) {
 	    var spot = self.getQueuePosition(data.user[0].userid);
@@ -76,7 +75,7 @@ var Queue = function (depList) {
 	    }
 	    else {
 		__cheaters[data.user[0].userid] = true;
-		bot.speak('Sorry, I\'m saving that spot for '+'. If you want to DJ, type q+ into chat');
+		bot.speak('Sorry, I\'m saving that spot for '+__callInfo.name+'. If you want to DJ, type q+ into chat');
 		bot.remDj(data.user[0].userid);
 	    }
 	});
@@ -270,8 +269,10 @@ var Queue = function (depList) {
 	var eventData = {
 	    id:   id,
 	    size: self.getQueueSize(),
-	    spot: self.getRealQueuePosition(id)};
-//	self.emit('enqueue', eventData);
+	    realSize: self.getRealQueueSize(),
+	    spot: self.getQueuePosition(id),
+	    realSpot: self.getRealQueuePosition(id)};
+	self.emit('enqueue', eventData);
 	return __success;
     };
 
@@ -290,9 +291,10 @@ var Queue = function (depList) {
 	    var eventData = {
 		id: id,
 		size: self.getQueueSize(),
-		spot: realSpot
-	    };
-//	    self.emit('dequeue', eventData);
+		realSize: self.getRealQueueSize(),
+		spot: spot,
+		realSpot: realSpot};
+	    self.emit('dequeue', eventData);
 	}
 	return spot;
     };
@@ -337,7 +339,7 @@ var Queue = function (depList) {
 	else {
 	    for (var i = 0; i < queueSize; i++) {
 		var user = __queue[i];
-
+		
 		msg += (i+1)+' - ';
 		if (aways.isAway(user.id, __isQueued)) {
 		    msg += '(x)'.replace('x',user.name);
@@ -377,6 +379,13 @@ var Queue = function (depList) {
 
     this.getQueueSize = function () {
 	return __queue.length;
+    }
+    this.getRealQueueSize = function () {
+	var lastUser = __queue[this.getQueueSize()-1];
+	if (!lastUser) {
+	    return 0;
+	}
+	return this.getRealQueuePosition(lastUser.id);
     }
 }
 

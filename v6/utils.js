@@ -30,7 +30,7 @@ var Utils = function (depList) {
 
     const __isDj = 'isDj';
     
-    UtilsModule.call(this,['aways']);
+    UtilsModule.call(this,['aways','kicks']);
     this.addDependencies(depList);
     
     var mod = function (id) {
@@ -109,8 +109,12 @@ var Utils = function (depList) {
 		    bot.speak('I think I might be stuck :(');
 		}
 		else {
-		    var name = self.getUserById(__currentDj).name;
-		    name = self.tagifyName(name);
+		    var user = self.getUserById(__currentDj);
+		    if (!user) {
+			__songTimer = null;
+			return;
+		    }
+		    var name = self.tagifyName(user.name);
 		    bot.speak('Hey, '+name+', you\'re stuck! Please skip!');
 		}
 		__stuckTimer = setTimeout(function () {
@@ -120,12 +124,13 @@ var Utils = function (depList) {
 			bot.stopSong();
 		    }
 		    else {
-			bot.remDj(__currentDj);
+			self.safeRemove(__currentDj);
 		    }
 		}, __skipLeeway);
 	    }, songLength+__songLeeway);
 	});
 
+	// change to aways.on
 	bot.on('add_dj', function (data) {
 	    var id = data.user[0].userid;
 	    __djList.push(id);
@@ -347,7 +352,7 @@ var Utils = function (depList) {
 	__oogVotes[id] = true;
 	var numVotes = self.objectSize(__oogVotes);
 	if (numVotes > __oogKickThresh) {
-	    bot.remDj(__currentDj);
+	    self.safeRemove(__currentDj);
 	    return;
 	}
 
@@ -359,7 +364,7 @@ var Utils = function (depList) {
 	}
 	if (numVotes > __oogWarnThresh && __oogKickTimeout === null) {
 	    __oogKickTimeout = setTimeout(function () {
-		bot.remDj(__currentDj);
+		self.safeRemove(__currentDj);
 		__oogKickTimeout = null;
 	    }, __oogKickTime);
 	}
@@ -407,6 +412,19 @@ var Utils = function (depList) {
     }
     this.getNumUsers = function () {
 	return self.objectSize(__userListIN);
+    };
+    this.getCurrentDj = function () {
+	return __currentDj;
+    };
+
+    this.safeRemove = function (id) {
+	var bot = self.getDep('bot');
+	var aways = self.getDep('aways');
+	var kicks = self.getDep('kicks');
+
+	aways.removeAways(id);
+	kicks.removeKick(id);
+	bot.remDj(id);
     };
 };
 

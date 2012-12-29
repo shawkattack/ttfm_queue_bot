@@ -108,6 +108,11 @@ var UtilsModule = function (depList) {
 	return 0;
     }
     this.getNumDjs.override = true;
+
+    // Get the current DJ
+    this.getCurrentDj = function () {
+	return '';
+    }
 };
 
 module.exports = UtilsModule;
