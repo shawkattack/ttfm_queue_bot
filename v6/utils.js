@@ -32,6 +32,10 @@ var Utils = function (depList) {
     
     UtilsModule.call(this,['aways','kicks']);
     this.addDependencies(depList);
+    this.addHelp({
+	'oog':'Type oog to mark the current song as \'out-of-genre\'. '+
+	    'If enough people join you, I\'ll remove the problem'
+    });
     
     var mod = function (id) {
 	var bot = self.getDep('bot');
@@ -351,18 +355,18 @@ var Utils = function (depList) {
 
 	__oogVotes[id] = true;
 	var numVotes = self.objectSize(__oogVotes);
-	if (numVotes > __oogKickThresh) {
+	if (numVotes >= __oogKickThresh) {
 	    self.safeRemove(__currentDj);
 	    return;
 	}
 
-	if (numVotes > __oogWarnThresh || warn) {
+	if (numVotes >= __oogWarnThresh || warn) {
 	    if (!__oogWarned) {
 		__oogWarned = true;
 		bot.speak('This sounds out of genre. Please skip!');
 	    }
 	}
-	if (numVotes > __oogWarnThresh && __oogKickTimeout === null) {
+	if (numVotes >= __oogWarnThresh && __oogKickTimeout === null) {
 	    __oogKickTimeout = setTimeout(function () {
 		self.safeRemove(__currentDj);
 		__oogKickTimeout = null;

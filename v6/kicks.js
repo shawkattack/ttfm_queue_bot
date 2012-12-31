@@ -14,6 +14,12 @@ var Kicks = function (depList) {
 
     KicksModule.call(this,['queue','utils']);
     this.addDependencies(depList);
+    this.addHelp({
+	'kick me':'Type kick me, and I\'ll remove you after your next song. '+
+	    'For a full options listing, check http://purednb.com/queue-commands/',
+	'cancel':'Type cancel kick me, and I\'ll remove any kick-mes you\'ve '+
+	    'requested :)'
+    });
 
     this.installHandlers = function () {
 	var bot = self.getDep('bot');

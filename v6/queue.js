@@ -1,7 +1,5 @@
 var QueueModule = require('./proto/queue.js');
 
-// TODO add away management
-
 var Queue = function (depList) {
     var self = this;
 
@@ -26,6 +24,13 @@ var Queue = function (depList) {
 
     QueueModule.call(this,['utils','aways','kicks']);
     this.addDependencies(depList);
+    this.addHelp({
+	'q+':'Type q+ to add yourself to the queue.',
+	'q-':'Type q- to remove yourself from the queue.',
+	'q?':'Type q? to print the queue.',
+	'myspot':'Type myspot and I\'ll tell you how many people are in '+
+	    'front of you in the queue.'
+    });
 
     this.installHandlers = function () {
 	var bot = self.getDep('bot');

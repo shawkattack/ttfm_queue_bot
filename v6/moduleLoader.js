@@ -5,6 +5,11 @@ var ModuleLoader = function () {
     var __bot = null;
     var __didInit = false;
     var __modules = {};
+    var __helpDictionary = {
+	'commands': 'Type commands for a list of commands.',
+	'help': 'Type help followed by a command for information '+
+	    'on that command. Type commands for a list of commands.'
+    };
 
     this.setBot = function (bot) {
 	if (__didInit === true) {
@@ -49,6 +54,19 @@ var ModuleLoader = function () {
 	for (var name in __modules) {
 	    __modules[name].install();
 	}
+    }
+
+    this.mergeHelp = function (helpDictionary) {
+	for (var word in helpDictionary) {
+	    if (__helpDictionary[word]) {
+		throw new Error('Duplicate help file entries for \''+word+
+				'\' command');
+	    }
+	    __helpDictionary[word] = helpDictionary[word];
+	}
+    }
+    this.getHelp = function () {
+	return __helpDictionary;
     }
 
     this.getModule = function (moduleName) {

@@ -6,6 +6,7 @@ var BotModule = function (depList, moduleName) {
     var __depList = [];
     var __moduleName = '';
     var __depObject = {};
+    var __helpFiles = {};
     
     // Allow for event throwing/handling
     EventEmitter.call(this);
@@ -52,6 +53,10 @@ var BotModule = function (depList, moduleName) {
 	    }
 	}
 
+	// Manage help files
+	depLoader.mergeHelp(this.getHelp());
+	this.clearHelp();
+
 	// Detach module loader
 	depLoader = null;
 
@@ -87,6 +92,23 @@ var BotModule = function (depList, moduleName) {
     this.installHandlers = function () {
     }
     this.installHandlers.override = true;
+
+    // Gets the help dictionary for this module
+    this.getHelp = function () {
+	return __helpFiles;
+    }
+
+    // Clears the reference to the help dictionary
+    this.clearHelp = function () {
+	__helpFiles = null;
+    }
+
+    // Adds help file entries
+    this.addHelp = function (helpEntries) {
+	for (var word in helpEntries) {
+	    __helpFiles[word] = helpEntries[word];
+	}
+    }
 };
 BotModule.prototype.__proto__ = EventEmitter.prototype;
 

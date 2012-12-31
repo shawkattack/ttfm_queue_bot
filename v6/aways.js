@@ -13,6 +13,13 @@ var Aways = function (depList) {
 
     AwaysModule.call(this,['queue','utils']);
     this.addDependencies(depList);
+    this.addHelp({
+	'away':'Type away while on the decks, and I\'ll guard your spot for a '+
+	    'minute so you can refresh. Type away while on queue, and I\'ll '+
+	    'save your spot for 10 minutes no matter what!',
+	'back':'If you marked yourself as away while on queue, type back to '+
+	    'let me know you\'ve returned.'
+    });
 
     this.installHandlers = function () {
 	var bot = self.getDep('bot');
