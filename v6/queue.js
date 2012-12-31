@@ -20,6 +20,8 @@ var Queue = function (depList) {
     const __isQueued = 'isQueued';
     const __isBot = 'isBot';
     const __zeroMove = 'zeroMove';
+    const __didKick = 'didKick';
+    const __onQueue = 'onQueue';
     const __success = true;
 
     QueueModule.call(this,['utils','aways','kicks']);
@@ -39,7 +41,7 @@ var Queue = function (depList) {
 		__queue[spot].name = data.user[0].name;
 	    }
 	});
-	bot.on('deregistered', function (data) {
+	aways.on('deregistered', function (data) {
 	    var spot = self.getQueuePosition(data.user[0].userid);
 	    if (spot !== false) {
 		__deleteTimers[data.user[0].userid] = setTimeout(function () {
@@ -57,10 +59,10 @@ var Queue = function (depList) {
             }
         });
 
-	bot.on('add_dj', function (data) {
+	aways.on('add_dj', function (data) {
 	    var qAways = aways.getAways(__isQueued);
-	    var spot = self.getRealQueuePosition(data.user[0].userid, qAways);
-	    var end = self.getRealQueuePosition('', qAways);
+	    var spot = self.getRealQueuePosition(data.user[0].userid);
+	    var end = self.getRealQueueSize();
 	    if (spot <= utils.getNumSpots()) {
 		self.cancelCall();
 		self.dequeue(data.user[0].userid);
@@ -79,7 +81,7 @@ var Queue = function (depList) {
 		bot.remDj(data.user[0].userid);
 	    }
 	});
-	bot.on('rem_dj', function (data) {
+	aways.on('rem_dj', function (data) {
 	    if (__cheaters[data.user[0].userid] === true) {
 		delete __cheaters[data.user[0].userid];
 		return;
@@ -90,8 +92,6 @@ var Queue = function (depList) {
 	});
 
 	bot.on('speak', function (data) {
-	    var utils = self.getDep('utils');
-	    var aways = self.getDep('aways');
 	    var reData = null;
 	    var tag = utils.tagifyName(data.name);
 	    if (utils.isMod(data.userid)) {
@@ -103,7 +103,7 @@ var Queue = function (depList) {
 			return;
 		    }
 		    var qAways = aways.getAways(__isQueued);
-		    var oldSpot = self.getRealQueuePosition(uData.id, qAways);
+		    var oldSpot = self.getRealQueuePosition(uData.id);
 		    var result = self.moveInQueue(uData.id, amt);
 		    var newSpot = -1;
 		    var msg = '';
@@ -125,7 +125,7 @@ var Queue = function (depList) {
 			if (oldSpot === false) {
 			    oldSpot = -1;
 			}
-			newSpot = self.getRealQueuePosition(uData.id, qAways);
+			newSpot = self.getRealQueuePosition(uData.id);
 		    }
 
 		    bot.speak(msg);
@@ -152,6 +152,9 @@ var Queue = function (depList) {
 		    break;
 		case __isBot:
 		    msg = 'Well that wasn\'t supposed to happen :P';
+		    break;
+		case __didKick:
+		    return;
 		    break;
 		default:
 		    if (self.getRealQueuePosition(data.userid)+1 <=
@@ -248,6 +251,7 @@ var Queue = function (depList) {
 	var bot = self.getDep('bot');
 	var utils = self.getDep('utils');
 	var aways = self.getDep('aways');
+	var kicks = self.getDep('kicks');
 	var spot = false;
 
 	if (id === bot.userId) {
@@ -272,8 +276,18 @@ var Queue = function (depList) {
 	    realSize: self.getRealQueueSize(),
 	    spot: self.getQueuePosition(id),
 	    realSpot: self.getRealQueuePosition(id)};
+	var hasKicks = kicks.getKicks({
+	    id:   id,
+	    type: __onQueue});
+	var result;
+	if (hasKicks !== undefined) {
+	    result = __didKick;
+	}
+	else {
+	    result = __success;
+	}
 	self.emit('enqueue', eventData);
-	return __success;
+	return result;
     };
 
     this.dequeue = function (id) {
@@ -294,6 +308,9 @@ var Queue = function (depList) {
 		realSize: self.getRealQueueSize(),
 		spot: spot,
 		realSpot: realSpot};
+	    if (__callInfo && id === __callInfo.id) {
+		self.callNext();
+	    }
 	    self.emit('dequeue', eventData);
 	}
 	return spot;
@@ -381,11 +398,7 @@ var Queue = function (depList) {
 	return __queue.length;
     }
     this.getRealQueueSize = function () {
-	var lastUser = __queue[this.getQueueSize()-1];
-	if (!lastUser) {
-	    return 0;
-	}
-	return this.getRealQueuePosition(lastUser.id);
+	return this.getRealQueuePosition('');
     }
 }
 

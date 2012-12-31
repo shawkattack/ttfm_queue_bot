@@ -160,12 +160,13 @@ var Kicks = function (depList) {
 		    else {
 			msg += 'when '+onQueue+' people queue up';
 		    }
-		    self.findQueueKickme();
 		}
 		msg += ' :)'
-		bot.speak(msg);
 		self.addKick(id, options);
-		console.log(id + ': '+options);
+		if (self.findQueueKickme() === id) {
+		    msg = 'WAZAM';
+		}
+		bot.speak(msg);
 	    }
 	});
     }
@@ -175,6 +176,7 @@ var Kicks = function (depList) {
 	var queue = self.getDep('queue');
 	var djs = utils.getDjs();
 	var numSpots = utils.getNumSpots();
+	var result = null;
 	if (n === undefined) {
 	    n = queue.getRealQueueSize();
 	}
@@ -187,14 +189,17 @@ var Kicks = function (depList) {
 		    n-numSpots+1 >= kickData) {
 		    if (djs[i] === utils.getCurrentDj()) {
 			__toKick = djs[i];
+			break;
 		    }
 		    else {
 			utils.safeRemove(djs[i]);
+			result = djs[i];
+			break;
 		    }
-		    return;
 		}
 	    }
 	}
+	return result;
     };
 
     this.addKick = function (id, options) {
@@ -210,7 +215,6 @@ var Kicks = function (depList) {
 
     this.removeKick = function (id) {
 	var success = false;
-	var queue = self.getDep('queue');
 	if (__kickList[__onQueue] && __kickList[__onQueue][id] !== undefined) {
 	    success = true;
 	    delete __kickList[__onQueue][id];
@@ -221,7 +225,7 @@ var Kicks = function (depList) {
 	}
 	if (id === __toKick) {
 	    __toKick = null;
-	    self.findQueueKickme(queue.getRealQueueSize());
+	    self.findQueueKickme();
 	}
 	return success;
     }
