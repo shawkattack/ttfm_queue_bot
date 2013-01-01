@@ -21,6 +21,13 @@ var Kicks = function (depList) {
 	    'requested :)'
     });
 
+    this.reset = function () {
+	__toKick = null;
+	__kickList = {};
+	__kickList[__onQueue] = {};
+	__kickList[__afterX] = {};
+    }
+
     this.installHandlers = function () {
 	var bot = self.getDep('bot');
 	var queue = self.getDep('queue');

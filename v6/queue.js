@@ -22,7 +22,7 @@ var Queue = function (depList) {
     const __onQueue = 'onQueue';
     const __success = true;
 
-    QueueModule.call(this,['utils','aways','kicks']);
+    QueueModule.call(this,['utils','aways','kicks','vips']);
     this.addDependencies(depList);
     this.addHelp({
 	'q+':'Type q+ to add yourself to the queue.',
@@ -32,11 +32,33 @@ var Queue = function (depList) {
 	    'front of you in the queue.'
     });
 
+    var clearTimer = function (timer) {
+	clearTimeout(timer);
+    }
+    this.reset = function () {
+	queue = [];
+
+	if (__callTimer) {
+	    clearTimer(__callTimer);
+	    __callTimer = null;
+	}
+
+	__callInfo = null;
+
+	for (var i in __deleteTimers) {
+	    clearTimer(__deleteTimers[i]);
+	}
+	__deleteTimers = {};
+
+	__cheaters = {};
+    };
+
     this.installHandlers = function () {
 	var bot = self.getDep('bot');
 	var utils = self.getDep('utils');
 	var aways = self.getDep('aways');
 	var kicks = self.getDep('kicks');
+	var vips = self.getDep('vips');
 
 	bot.on('registered', function (data) {
 	    var spot = self.getQueuePosition(data.user[0].userid);
@@ -96,7 +118,7 @@ var Queue = function (depList) {
 	    }
 	});
 
-	bot.on('speak', function (data) {
+	vips.on('speak', function (data) {
 	    var reData = null;
 	    var tag = utils.tagifyName(data.name);
 	    if (utils.isMod(data.userid)) {

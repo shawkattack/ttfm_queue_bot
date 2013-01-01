@@ -109,6 +109,11 @@ var BotModule = function (depList, moduleName) {
 	    __helpFiles[word] = helpEntries[word];
 	}
     }
+
+    // Resets the module
+    // Override highly recommended
+    this.reset = function () {
+    }
 };
 BotModule.prototype.__proto__ = EventEmitter.prototype;
 

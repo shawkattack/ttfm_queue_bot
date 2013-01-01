@@ -11,7 +11,7 @@ var Aways = function (depList) {
     var __awayList = {};
     var __deregisterStore = {};
 
-    AwaysModule.call(this,['queue','utils']);
+    AwaysModule.call(this,['queue','utils','vips']);
     this.addDependencies(depList);
     this.addHelp({
 	'away':'Type away while on the decks, and I\'ll guard your spot for a '+
@@ -21,10 +21,23 @@ var Aways = function (depList) {
 	    'let me know you\'ve returned.'
     });
 
+    var clearTimer = function (timer) {
+	clearTimeout(timer);
+    }
+    this.reset = function () {
+	for (var i in __awayList) {
+	    clearTimer(__awayList[i].timeout);
+	}
+	__awayList = {};
+
+	__deregisterStore = {};
+    }
+
     this.installHandlers = function () {
 	var bot = self.getDep('bot');
 	var queue = self.getDep('queue');
 	var utils = self.getDep('utils');
+	var vips = self.getDep('vips');
 
 	queue.on('dequeue', function (data) {
 	    self.removeAways(data.id);
@@ -57,7 +70,7 @@ var Aways = function (depList) {
 	    }
 	});
 
-	bot.on('speak', function (data) {
+	vips.on('speak', function (data) {
 	    var reData = null;
 	    var id = data.userid;
 	    var name = utils.tagifyName(data.name);

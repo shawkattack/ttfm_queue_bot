@@ -46,7 +46,7 @@ var UtilsModule = function (depList) {
     
     // ALL FOLLOWING FUNCTIONS ARE NOT IMPLEMENTED BY DEFAULT
     // Please implement these when you write your actual modules
-    
+
     // Turns a tagged name into a non-tagged name
     this.untagifyName = function (tag) {
 	return '';

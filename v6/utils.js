@@ -30,11 +30,11 @@ var Utils = function (depList) {
 
     const __isDj = 'isDj';
     
-    UtilsModule.call(this,['aways','kicks']);
+    UtilsModule.call(this,['queue','aways','kicks']);
     this.addDependencies(depList);
     this.addHelp({
 	'oog':'Type oog to mark the current song as \'out-of-genre\'. '+
-	    'If enough people join you, I\'ll remove the problem'
+	    'If enough people join you, I\'ll remove the problem :)'
     });
     
     var mod = function (id) {
@@ -55,6 +55,16 @@ var Utils = function (depList) {
 	delete user.mod;
 	bot.remModerator(id);
     }
+
+    this.reset = function () {
+        var queue = self.getDep('queue');
+        var aways = self.getDep('aways');
+        var kicks = self.getDep('kicks');
+	
+        queue.reset();
+        aways.reset();
+        kicks.reset();
+    };
     
     this.installHandlers = function () {
 	var bot = self.getDep('bot');
@@ -134,7 +144,6 @@ var Utils = function (depList) {
 	    }, songLength+__songLeeway);
 	});
 
-	// change to aways.on
 	bot.on('add_dj', function (data) {
 	    var id = data.user[0].userid;
 	    __djList.push(id);
@@ -259,7 +268,7 @@ var Utils = function (depList) {
 	    }
 	});
     };
-    
+
     this.snag = function () {
 	self.snagSong(__currentSong);
     };
