@@ -5,4 +5,4 @@ module.exports = exports = {
     kicks: './proto/kicks.js',
 //    limit: './proto/limit.js',
     vips: './proto/vips.js'
-}
+};

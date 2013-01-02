@@ -96,6 +96,10 @@ var Utils = function (depList) {
 		}
 	    }
 	    self.doVote(data.room.metadata);
+
+	    if (self.getMaxDjs()-self.getNumSpots() < 2) {
+		bot.addDj();
+	    }
 	});
 	
 	bot.on('newsong', function (data) {
@@ -147,12 +151,18 @@ var Utils = function (depList) {
 	bot.on('add_dj', function (data) {
 	    var id = data.user[0].userid;
 	    __djList.push(id);
+	    if (self.getMaxDjs()-self.getNumSpots() >= 3) {
+		bot.remDj(bot.userId);
+	    }
 	});
 	bot.on('rem_dj', function (data) {
 	    var id = data.user[0].userid;
 	    var idx = self.isDj(id);
 	    if (idx !== false) {
 		__djList.splice(idx,1);
+	    }
+	    if (self.getMaxDjs()-self.getNumSpots() < 2) {
+		bot.addDj();
 	    }
 	});
 
