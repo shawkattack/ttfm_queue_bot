@@ -89,7 +89,7 @@ var Aways = function (depList) {
 		bot.speak('OK, got you covered, '+name+'!');
 	    }
 	    else if ((reData = data.text.match(/^ *back *$/i))) {
-		var result = self.removeAway(id);
+		var result = self.removeAways(id);
 		if (result) {
 		    bot.speak('Gotcha! :)');
 		}

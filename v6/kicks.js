@@ -199,7 +199,7 @@ var Kicks = function (depList) {
 		    id:   djs[i],
 		    type: __onQueue });
 		if (typeof kickData === 'number' &&
-		    n-numSpots+1 >= kickData) {
+		    n-numSpots >= kickData) {
 		    if (djs[i] === utils.getCurrentDj()) {
 			__toKick = djs[i];
 			break;

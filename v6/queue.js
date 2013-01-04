@@ -10,7 +10,7 @@ var Queue = function (depList) {
 
     var __cheaters = {};
 
-    const __callTime = 40*1000;
+    const __callTime = 60*1000;
     const __removeTime = 5*60*1000;
 
     const __isDj = 'isDj';
@@ -104,7 +104,13 @@ var Queue = function (depList) {
 	    }
 	    else {
 		__cheaters[data.user[0].userid] = true;
-		bot.speak('Sorry, I\'m saving that spot for '+__callInfo.name+'. If you want to DJ, type q+ into chat');
+		if (!__callInfo) {
+		    bot.speak('CRITICAL QUEUE FAILURE: Email the queue and anything you can remember about what just happened to shawkattack@purednb.com');
+		    self.printQueue();
+		}
+		else {
+		    bot.speak('Sorry, I\'m saving that spot for '+__callInfo.name+'. If you want to DJ, type q+ into chat');
+		}
 		bot.remDj(data.user[0].userid);
 	    }
 	});
@@ -244,10 +250,14 @@ var Queue = function (depList) {
 	var utils = self.getDep('utils');
 	var aways = self.getDep('aways');
 	var tag;
-	
-	self.cancelCall();
+	var callId = __callInfo && __callInfo.id;
+
 	for (var i = 0; i < self.getQueueSize(); i++) {
 	    if (!aways.isAway(__queue[i].id, __isQueued)) {
+		if (__queue[i].id === callId) {
+		    return;
+		}
+		self.cancelCall();
 		__callInfo = __queue[i];
 		tag = utils.tagifyName(__callInfo.name);
 		bot.speak('You\'re up, '+tag+'!');
