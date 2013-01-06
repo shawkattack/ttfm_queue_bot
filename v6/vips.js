@@ -64,36 +64,46 @@ var Vips = function (depList) {
 	    var sender = data.senderid;
 	    var user = utils.getUserById(sender);
 	    if (user.mod) {
-		if ((reData = data.text.match(/^ *vip *mode +on *$/i))) {
-		    self.setVipMode();
-		    bot.remDj(bot.userId);
-		    msg = 'WARNING! VIP mode has been activated! ';
-		    var n = 0;
-		    var djs = utils.getDjs();
-		    for (var i in djs) {
-			if (!__vipList[djs[i]]) {
-			    addKickTimer(djs[i], n);
-			    var dj = utils.getUserById(djs[i]);
-			    msg += utils.tagifyName(dj.name);
-			    msg += ', ';
-			    n++;
+		if ((reData = data.text.match(/^ *\/?(?:set +)?vip *mode +on *$/i))) {
+		    if (__vipMode) {
+			bot.pm('We\'re already in VIP mode!',sender);
+		    }
+		    else {
+			self.setVipMode();
+			bot.remDj(bot.userId);
+			msg = 'WARNING! VIP mode has been activated! ';
+			var n = 0;
+			var djs = utils.getDjs();
+			for (var i in djs) {
+			    if (!__vipList[djs[i]]) {
+				addKickTimer(djs[i], n);
+				var dj = utils.getUserById(djs[i]);
+				msg += utils.tagifyName(dj.name);
+				msg += ', ';
+				n++;
+			    }
 			}
+			if (n > 0) {
+			    msg += 'please get off the decks!';
+			}
+			bot.speak(msg);
 		    }
-		    if (n > 0) {
-			msg += 'please get off the decks!';
-		    }
-		    bot.speak(msg);
 		}
-		else if ((reData = data.text.match(/^ *vip *mode +off *$/i))) {
-		    self.unsetVipMode();
-		    bot.speak('VIP mode has been deactivated. '+
-			      'Thanks, everyone! :)');
-		    for (var id in __kickList) {
-			clearKickTimer(id);
+		else if ((reData = data.text.match(/^ *\/?(?:set +)?vip *mode +off *$/i))) {
+		    if (!__vipMode) {
+			bot.pm('We\'re already out of VIP mode!',sender);
 		    }
-		    __kickList = {};
+		    else {
+			self.unsetVipMode();
+			bot.speak('VIP mode has been deactivated. '+
+				  'Thanks, everyone! :)');
+			for (var id in __kickList) {
+			    clearKickTimer(id);
+			}
+			__kickList = {};
+		    }
 		}
-		else if ((reData = data.text.match(/^ *vip +(\S.*?) *$/i))) {
+		else if ((reData = data.text.match(/^ *\/?vip +(\S.*?) *$/i))) {
 		    var target = utils.getUserByTag(reData[1]);
 		    if (!target) {
 			bot.pm('Sorry, I can\'t find that user :(', sender);
@@ -103,7 +113,7 @@ var Vips = function (depList) {
 			       ,sender);
 		    }
 		}
-		else if ((reData = data.text.match(/^ *unvip +(\S.*?) *$/i))) {
+		else if ((reData = data.text.match(/^ *\/?unvip +(\S.*?) *$/i))) {
 		    var target = utils.getUserByTag(reData[1]);
 		    if (!target) {
 			bot.pm('Sorry, I can\'t find that user :(', sender);
@@ -113,8 +123,23 @@ var Vips = function (depList) {
 			       ,sender);
 		    }
 		}
-		else if ((reData = data.text.match(/^ *reset +vips *$/i))) {
+		else if ((reData = data.text.match(/^ *\/?reset +vips *$/i))) {
 		    self.reset();
+		}
+		else if ((reData = data.text.match(/^ *\/?vips *$/i))) {
+		    msg = '';
+
+		    for (var id in __vipList) {
+			msg += __vipList[id];
+			msg += ', ';
+		    }
+		    if (msg) {
+			msg = msg.substring(0,msg.length-2);
+		    }
+		    else {
+			msg = 'There are currently no VIPs :(';
+		    }
+		    bot.pm(msg,sender);
 		}
 	    }
 	});
@@ -126,7 +151,7 @@ var Vips = function (depList) {
 		self.emit('speak', data);
 	    }
 
-	    if ((reData = data.text.match(/^ *vips *$/i))) {
+	    if ((reData = data.text.match(/^ *\/?vips *$/i))) {
 		if (!__vipMode) {
 		    bot.speak('We\'re not in VIP mode right now!');
 		}

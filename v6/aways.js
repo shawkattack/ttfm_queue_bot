@@ -10,6 +10,7 @@ var Aways = function (depList) {
 
     var __awayList = {};
     var __deregisterStore = {};
+    var __remDjStore = {};
 
     AwaysModule.call(this,['queue','utils','vips']);
     this.addDependencies(depList);
@@ -31,6 +32,7 @@ var Aways = function (depList) {
 	__awayList = {};
 
 	__deregisterStore = {};
+	__remDjStore = {};
     }
 
     this.installHandlers = function () {
@@ -44,14 +46,22 @@ var Aways = function (depList) {
 	});
 
 	bot.on('add_dj', function (data) {
-	    if(!self.removeAways(data.user[0].userid)) {
+	    var id = data.user[0].userid;
+	    if (!self.removeAways(id)) {
 		self.emit('add_dj', data);
+	    }
+	    else {
+		delete __remDjStore[id];
 	    }
 	});
 
 	bot.on('rem_dj', function (data) {
-	    if (!self.isAway(data.user[0].userid)) {
+	    var id = data.user[0].userid;
+	    if (!self.isAway(id, __isDj)) {
 		self.emit('rem_dj', data);
+	    }
+	    else {
+		__remDjStore[id] = data;
 	    }
 	});
 
@@ -74,9 +84,9 @@ var Aways = function (depList) {
 	    var reData = null;
 	    var id = data.userid;
 	    var name = utils.tagifyName(data.name);
-	    if ((reData = data.text.match(/^ *away *$/i))) {
+	    if ((reData = data.text.match(/^ *\/?away *$/i))) {
 		if (utils.isDj(id)) {
-		    self.addAway(id, __isDj);
+		    var tmp = self.addAway(id, __isDj);
 		}
 		else if (queue.getQueuePosition(id) !== false) {
 		    self.addAway(id, __isQueued);
@@ -88,7 +98,7 @@ var Aways = function (depList) {
 		}
 		bot.speak('OK, got you covered, '+name+'!');
 	    }
-	    else if ((reData = data.text.match(/^ *back *$/i))) {
+	    else if ((reData = data.text.match(/^ *\/?back *$/i))) {
 		var result = self.removeAways(id);
 		if (result) {
 		    bot.speak('Gotcha! :)');
@@ -140,6 +150,10 @@ var Aways = function (depList) {
 		else {
 		    self.emit('deregistered', __deregisterStore[id]);
 		    delete __deregisterStore[id];
+		}
+		if (__remDjStore[id]) {
+		    self.emit('rem_dj',__remDjStore[id]);
+		    delete __remDjStore[id];
 		}
 	    },time)};
 	return __awayList[id];
