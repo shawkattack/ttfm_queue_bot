@@ -80,7 +80,7 @@ var Aways = function (depList) {
 	    }
 	});
 
-	vips.on('speak', function (data) {
+	bot.on('speak', function (data) {
 	    var reData = null;
 	    var id = data.userid;
 	    var name = utils.tagifyName(data.name);
@@ -118,7 +118,7 @@ var Aways = function (depList) {
 	var result = {};
 	for (var id in __awayList) {
 	    if (__awayList[id].type === type) {
-		result[id] = __awayList[id].timeout;
+		result[id] = __awayList[id];
 	    }
 	}
 	return result;
@@ -128,6 +128,11 @@ var Aways = function (depList) {
 	var bot = this.getDep('bot');
 	var utils = this.getDep('utils');
 	var time = null;
+	var usr = utils.getUserById(id);
+	var name;
+	if (usr) {
+	    name = usr.name;
+	}
 	if (type === __isQueued) {
 	    time = __queueAwayTime;
 	}
@@ -139,6 +144,7 @@ var Aways = function (depList) {
 	}
 	
 	__awayList[id] = {
+	    name:    name,
 	    type:    type,
 	    timeout: setTimeout(function () {
 		self.removeAways(id);

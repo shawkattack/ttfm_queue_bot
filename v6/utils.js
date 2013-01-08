@@ -182,7 +182,7 @@ var Utils = function (depList) {
 		    for (var i in mods) {
 			if (mods[i] === userObj.id) {
 			    userObj.mod = true;
-			    return;
+			    break;
 			}
 		    }
 		});

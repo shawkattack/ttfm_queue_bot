@@ -62,8 +62,7 @@ var Vips = function (depList) {
 	bot.on('pmmed', function (data) {
 	    var reData = null;
 	    var sender = data.senderid;
-	    var user = utils.getUserById(sender);
-	    if (user.mod) {
+	    if (utils.isMod(sender)) {
 		if ((reData = data.text.match(/^ *\/?(?:set +)?vip *mode +on *$/i))) {
 		    if (__vipMode) {
 			bot.pm('We\'re already in VIP mode!',sender);
@@ -149,6 +148,10 @@ var Vips = function (depList) {
 	    var reData = null;
 	    if (!__vipMode) {
 		self.emit('speak', data);
+	    }
+	    else if ((reData = data.text.match(/^ *\/?q[?+-] *$/i)) ||
+		     (reData = data.text.match(/^ *\/?q[+-][0-9]+ +\S.*? *$/i))) {
+		bot.speak('Sorry, the queue is disabled in VIP mode.');
 	    }
 
 	    if ((reData = data.text.match(/^ *\/?vips *$/i))) {

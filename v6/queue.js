@@ -88,6 +88,7 @@ var Queue = function (depList) {
 
 	aways.on('add_dj', function (data) {
 	    var qAways = aways.getAways(__isQueued);
+	    var djAways = aways.getAways(__isDj);
 	    var spot = self.getRealQueuePosition(data.user[0].userid);
 	    var end = self.getRealQueueSize();
 	    if (spot <= utils.getNumSpots()) {
@@ -104,13 +105,22 @@ var Queue = function (depList) {
 	    }
 	    else {
 		__cheaters[data.user[0].userid] = true;
-		if (!__callInfo) {
-		    bot.speak('CRITICAL QUEUE FAILURE: Email the queue and anything you can remember about what just happened to shawkattack@purednb.com');
-		    self.printQueue();
+		var msg = 'Sorry, I\'m saving that spot for X. If you want to DJ, type q+ into chat';
+		if (__callInfo) {
+		    msg = msg.replace('X',__callInfo.name);
 		}
 		else {
-		    bot.speak('Sorry, I\'m saving that spot for '+__callInfo.name+'. If you want to DJ, type q+ into chat');
+		    for (var id in djAways) {
+			if (djAways[id].name) {
+			    msg = msg.replace('X',djAways[id].name);
+			}
+			else {
+			    msg = msg.replace('X','someone');
+			}
+			break;
+		    }
 		}
+		bot.speak(msg);
 		bot.remDj(data.user[0].userid);
 	    }
 	});

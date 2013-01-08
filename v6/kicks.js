@@ -126,8 +126,8 @@ var Kicks = function (depList) {
 				if (afterX > 10) {
 				    afterX = 10;
 				}
-				if (afterX < 1) {
-				    afterX = 1;
+				if (afterX < 0) {
+				    afterX = 0;
 				}
 			    }
 			}
