@@ -64,26 +64,28 @@ var Kicks = function (depList) {
 	    var reData = null;
 	    var id = data.userid;
 	    if ((reData = data.text.match(
-		    /^ *\/?(?:kick|boot|escort|remove) *me +cancel *$/i)) ||
+		    /^ *\/?(kick|boot|escort|remove) *me +cancel *$/i)) ||
 		(reData = data.text.match(
-		    /^ *\/?cancel +(?:kick|boot|escort|remove) *me *$/i))) {
+	            /^ *\/?cancel +(kick|boot|escort|remove)(?: *me) *$/i))) {
 		var result = self.removeKick(id);
+		var verb = reData[1];
 		if (!result) {
-		    bot.speak('You didn\'t ask me to kick you :P');
+		    bot.speak('You didn\'t ask me to '+verb+' you :P');
 		    return;
 		}
 		else {
-		    bot.speak('OK, I won\'t kick you any more :)');
+		    bot.speak('OK, I won\'t '+verb+' you any more :)');
 		    return;
 		}
 	    }
 	    else if ((reData = data.text.match(
-		    /^ *\/?(?:kick|boot|escort|remove) *me(.*)$/i))) {
+		    /^ *\/?(kick|boot|escort|remove) *me(.*)$/i))) {
+		var verb = reData[1];
 		if (!utils.isDj(id)) {
-		    bot.speak('I can\'t kick you if you\'re not on the decks!');
+		    bot.speak('I can\'t '+verb+' you if you\'re not on the decks!');
 		    return;
 		}
-		var options = reData[1];
+		var options = reData[2];
 		var onQueue = null;
 		var afterX = null;
 		reData = null;
@@ -147,7 +149,7 @@ var Kicks = function (depList) {
 		    bot.speak('Something\'s not quite right there... :/');
 		    return;
 		}
-		var msg = 'OK, I\'ll kick you ';
+		var msg = 'OK, I\'ll '+verb+' you ';
 		options = {};
 		if (afterX !== null) {
 		    options[__afterX] = afterX;

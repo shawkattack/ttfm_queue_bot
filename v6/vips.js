@@ -15,10 +15,6 @@ var Vips = function (depList) {
     this.addHelp({
 	'vips':'Prints a list of all vips.'
     });
-   
-    this.reset = function () {
-	__vipList = {};
-    };
 
     this.installHandlers = function () {
 	var bot = this.getDep('bot');
@@ -96,10 +92,6 @@ var Vips = function (depList) {
 			self.unsetVipMode();
 			bot.speak('VIP mode has been deactivated. '+
 				  'Thanks, everyone! :)');
-			for (var id in __kickList) {
-			    clearKickTimer(id);
-			}
-			__kickList = {};
 		    }
 		}
 		else if ((reData = data.text.match(/^ *\/?vip +(\S.*?) *$/i))) {
@@ -124,6 +116,7 @@ var Vips = function (depList) {
 		}
 		else if ((reData = data.text.match(/^ *\/?reset +vips *$/i))) {
 		    self.reset();
+		    bot.pm('Alright, the VIP list has been cleared :)');
 		}
 		else if ((reData = data.text.match(/^ *\/?vips *$/i))) {
 		    msg = '';
@@ -155,24 +148,19 @@ var Vips = function (depList) {
 	    }
 
 	    if ((reData = data.text.match(/^ *\/?vips *$/i))) {
-		if (!__vipMode) {
-		    bot.speak('We\'re not in VIP mode right now!');
+		msg = '';
+		
+		for (var id in __vipList) {
+		    msg += __vipList[id];
+		    msg += ', ';
+		}
+		if (msg) {
+		    msg = msg.substring(0,msg.length-2);
 		}
 		else {
-		    msg = '';
-
-		    for (var id in __vipList) {
-			msg += __vipList[id];
-			msg += ', ';
-		    }
-		    if (msg) {
-			msg = msg.substring(0,msg.length-2);
-		    }
-		    else {
-			msg = 'There are currently no VIPs :(';
-		    }
-		    bot.speak(msg);
+		    msg = 'There are currently no VIPs :(';
 		}
+		bot.speak(msg);
 	    }
 	});	
     }
@@ -184,7 +172,10 @@ var Vips = function (depList) {
     }
     this.unsetVipMode = function () {
 	__vipMode = false;
-	__vipList = {};
+	for (var id in __kickList) {
+	    clearKickTimer(id);
+	}
+	__kickList = {};
     }
 
     this.addVip = function (id, name) {
@@ -201,6 +192,18 @@ var Vips = function (depList) {
 	}
 	delete __vipList[id];
 	return true;
+    }
+
+    this.isVip = function (id) {
+	if (__vipList[id]) {
+	    return true;
+	}
+	return false;
+    }
+
+    this.reset = function () {
+	self.unsetVipMode();
+	__vipList = {};
     }
 }
 

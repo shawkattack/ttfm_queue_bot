@@ -30,7 +30,7 @@ var Utils = function (depList) {
 
     const __isDj = 'isDj';
     
-    UtilsModule.call(this,['queue','aways','kicks']);
+    UtilsModule.call(this,['queue','aways','kicks','vips']);
     this.addDependencies(depList);
     this.addHelp({
 	'oog':'Type oog to mark the current song as \'out-of-genre\'. '+
@@ -148,12 +148,14 @@ var Utils = function (depList) {
 	    }, songLength+__songLeeway);
 	});
 
-	bot.on('add_dj', function (data) {
-	    var id = data.user[0].userid;
-	    __djList.push(id);
+	bot.on('endsong', function (data) {
 	    if (self.getMaxDjs()-self.getNumSpots() >= 3) {
 		bot.remDj(bot.userId);
 	    }
+	});
+	bot.on('add_dj', function (data) {
+	    var id = data.user[0].userid;
+	    __djList.push(id);
 	});
 	bot.on('rem_dj', function (data) {
 	    var id = data.user[0].userid;
@@ -371,6 +373,11 @@ var Utils = function (depList) {
 
     this.countOOGVote = function (id, warn) {
 	var bot = self.getDep('bot');
+        var vips = self.getDep('vips');
+
+        if (vips.isVip(id)) {
+            return;
+        }
 
 	__oogVotes[id] = true;
 	var numVotes = self.objectSize(__oogVotes);

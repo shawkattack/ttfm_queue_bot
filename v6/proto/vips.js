@@ -22,6 +22,10 @@ var VipsModule = function (depList) {
 	return false;
     };
     this.removeVip.override = true;
+
+    this.isVip = function (id) {
+	return false;
+    };
 }
 
 module.exports = VipsModule;

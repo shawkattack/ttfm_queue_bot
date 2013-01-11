@@ -3,6 +3,6 @@ module.exports = exports = {
     queue: './queue.js',
     aways: './aways.js',
     kicks: './kicks.js',
-//    limit: './limit.js',
+    limit: './limit.js',
     vips: './vips.js'
 };
