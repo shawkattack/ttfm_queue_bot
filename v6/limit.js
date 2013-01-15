@@ -46,13 +46,13 @@ var Limit = function (depList) {
 	aways.on('rem_dj', function (data) {
 	    var id = data.user[0].userid;
 	    delete __songCounts[id];
-	    if (utils.getNumSpots()-queue.getSize() >= 0) {
+	    if (utils.getNumSpots()-queue.getQueueSize() >= 0) {
 		self.reset();
 	    }
 	});
 
 	queue.on('dequeue', function (data) {
-	    if (utils.getNumSpots()-queue.getSize() >= 0) {
+	    if (utils.getNumSpots()-queue.getQueueSize() >= 0) {
 		self.reset();
 	    }
 	});

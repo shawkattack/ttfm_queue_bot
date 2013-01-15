@@ -156,6 +156,9 @@ var Utils = function (depList) {
 	bot.on('add_dj', function (data) {
 	    var id = data.user[0].userid;
 	    __djList.push(id);
+	    if (__currentDj != bot.userId && self.getMaxDjs()-self.getNumSpots() >= 3) {
+		bot.remDj(bot.userId);
+	    }
 	});
 	bot.on('rem_dj', function (data) {
 	    var id = data.user[0].userid;
