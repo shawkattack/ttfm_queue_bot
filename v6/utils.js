@@ -14,12 +14,17 @@ var Utils = function (depList) {
     var __oogWarned = false;
     var __oogKickTimeout = null;
 
+    var __oogGraceTime = 15*1000;
+    var __oogGraceTimeout = null;
+
     var __songTimer = null;
     var __stuckTimer = null;
     
     var __currentSong = null;
     var __hasVoted = false;
     var __modLockOn = false;
+
+    var __botsKilled = 0;
     
     const __upvoteThresh = 0.25;
     const __oogWarnThresh = 2;
@@ -82,7 +87,12 @@ var Utils = function (depList) {
 	    }
 	    
 	    var users = data.users;
+	    __botsKilled = 0;
 	    for (var i in users) {
+		if (users[i].name.match(/^@ttstats_[0-9]+$/)) {
+		    bot.boot(users[i].userid,(++__botsKilled)+' bots down!');
+		    continue;
+		}
 		var userObj = {
 		    id:   users[i].userid,
 		    name: users[i].name };
@@ -146,6 +156,14 @@ var Utils = function (depList) {
 		    }
 		}, __skipLeeway);
 	    }, songLength+__songLeeway);
+
+	    if (__oogGraceTimeout) {
+		clearTimeout(__oogGraceTimeout);
+		__oogGraceTimeout = null;
+	    }
+	    __oogGraceTimeout = setTimeout(function () {
+		__oogGraceTimeout = null;
+	    },__oogGraceTime);
 	});
 
 	bot.on('endsong', function (data) {
@@ -177,6 +195,11 @@ var Utils = function (depList) {
 		id:   data.user[0].userid };
 	    __userListIN[userObj.id] = userObj;
 	    __userListNI[userObj.name.toLowerCase()] = userObj;
+
+	    if (data.user[0].name.match(/^@ttstats_[0-9]+$/)) {
+		bot.boot(data.user[0].userid, (++__botsKilled)+' bots down!');
+		return;
+	    }
 
 	    if (!self.isMod(userObj.id)) {
 		bot.roomInfo(false, function (data2) {
@@ -379,6 +402,9 @@ var Utils = function (depList) {
         var vips = self.getDep('vips');
 
         if (vips.isVip(id)) {
+            return;
+        }
+        if (__oogGraceTimeout != null) {
             return;
         }
 
