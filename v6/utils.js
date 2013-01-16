@@ -14,7 +14,7 @@ var Utils = function (depList) {
     var __oogWarned = false;
     var __oogKickTimeout = null;
 
-    var __oogGraceTime = 15*1000;
+    var __oogGraceTime = 5*1000;
     var __oogGraceTimeout = null;
 
     var __songTimer = null;
