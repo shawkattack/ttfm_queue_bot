@@ -98,35 +98,54 @@ var Queue = function (depList) {
 		    self.callNext();
 		}
 	    }
-	    else if (spot < end) {
-		__cheaters[data.user[0].userid] = true;
-		bot.speak('No cutting! >:C');
-		bot.remDj(data.user[0].userid);
-	    }
 	    else {
 		__cheaters[data.user[0].userid] = true;
-		var msg = 'Sorry, I\'m saving that spot for X. If you want to DJ, type q+ into chat';
-		if (__callInfo) {
-		    msg = msg.replace('X',__callInfo.name);
+		var found = 'someone';
+		var msg = 'I\'m saving that spot for X.';
+		for (var id in djAways) {
+		    if (djAways[id].name) {
+			found = djAways[id].name;
+		    }
+		    break;
 		}
-		else {
-		    for (var id in djAways) {
-			if (djAways[id].name) {
-			    msg = msg.replace('X',djAways[id].name);
+		if (found == 'someone') {
+		    if (!__callInfo) {
+			for (var i in __queue) {
+			    if (!aways.isAway(__queue[i].id,__isQueued)) {
+				__callInfo = __queue[i];
+				break;
+			    }
 			}
-			else {
-			    msg = msg.replace('X','someone');
-			}
-			break;
+		    }
+		    found = __callInfo.name;
+
+		    if (spot < end) {
+			msg = 'No cutting! >:C '+msg;
 		    }
 		}
-		bot.speak(msg);
+
+		if (found == 'someone' || !found) {
+		    console.log('User: '+data.user[0].name);
+		    console.log('Position: '+spot);
+		    console.log('Spots: '+utils.getNumSpots());
+		    console.log('Queue: '+__queue);
+		    console.log('On Call: '+__callInfo);
+		    throw new Error('User removed for no reason');
+		}
+
+		if (spot >= end) {
+		    msg = 'Sorry, '+msg+' If you want to DJ, type q+ into chat.';
+		}
+		bot.speak(msg.replace('X',found));
 		bot.remDj(data.user[0].userid);
 	    }
 	});
 	aways.on('rem_dj', function (data) {
 	    if (__cheaters[data.user[0].userid] === true) {
 		delete __cheaters[data.user[0].userid];
+		if (__callInfo && !__callTimer) {
+		    self.callNext();
+		}
 		return;
 	    }
 	    if (utils.getNumSpots() > 0) {
@@ -182,6 +201,7 @@ var Queue = function (depList) {
 	    if ((reData = data.text.match(/^ *\/?q\+ *$/i))) {
 		var result = self.enqueue(data.userid, data.name);
 		var msg = '';
+		var doCall = false;
 		switch(result) {
 		case __isDj:
 		    msg = 'You\'re already on the decks, '+tag+' :P';
@@ -206,9 +226,13 @@ var Queue = function (depList) {
 		    }
 		    else {
 			msg = 'I\'ve added you to the queue, '+tag+' :)';
+			doCall = (__callInfo && !__callTimer);
 		    }
 		}
 		bot.speak(msg);
+		if (doCall) {
+		    self.callNext();
+		}
 	    }
 	    else if ((reData = data.text.match(/^ *\/?q- *$/i))) {
 		var result = self.dequeue(data.userid);
@@ -264,7 +288,7 @@ var Queue = function (depList) {
 
 	for (var i = 0; i < self.getQueueSize(); i++) {
 	    if (!aways.isAway(__queue[i].id, __isQueued)) {
-		if (__queue[i].id === callId) {
+		if (__queue[i].id === callId && __callTimer) {
 		    return;
 		}
 		self.cancelCall();
@@ -424,20 +448,44 @@ var Queue = function (depList) {
 	var bot = self.getDep('bot');
 	var aways = self.getDep('aways');
 	var utils = self.getDep('utils');
-	var spot = self.getRealQueuePosition(id);
+	var spot = self.getQueuePosition(id);
 	var name = utils.getUserById(id).name;
 
+	var djs = utils.getDjs();
+	for (var i = 0; i < djs.length; i++) {
+	    if (djs[i] === id) {
+		var place = i+1;
+		switch (place%10) {
+		case 1:
+		    place = place+'st';
+		    break;
+		case 2:
+		    place = place+'nd';
+		    break;
+		case 3:
+		    place = place+'rd';
+		    break;
+		default:
+		    place = place+'th';
+		}
+		bot.speak('You\'re in the '+place+' DJ spot :3');
+		return;
+	    }
+	}
 	if (spot === false) {
 	    bot.speak('You\'re not on the queue, '+name);
 	}
-	else if (spot === 0) {
-	    bot.speak('You\'re next in line, '+name+' :)');
-	}
-	else if (spot === 1) {
-	    bot.speak('There\'s 1 person in front of you, '+name+'!');
-	}
 	else {
-	    bot.speak('There are '+spot+' people in front of you, '+name);
+	    spot = self.getRealQueuePosition(id);
+	    if (spot === 0) {
+		bot.speak('You\'re next in line, '+name+' :)');
+	    }
+	    else if (spot === 1) {
+		bot.speak('There\'s 1 person in front of you, '+name+'!');
+	    }
+	    else {
+		bot.speak('There are '+spot+' people in front of you, '+name);
+	    }
 	}
     };
 

@@ -34,24 +34,27 @@ var Kicks = function (depList) {
 	var utils = self.getDep('utils');
 
 	queue.on('enqueue', function (data) {
-	    self.findQueueKickme(data.realSpot);
+	    self.findQueueKickme(data.realSpot+1);
 	});
 
 	queue.on('dequeue', function (data) {
 	    self.findQueueKickme(data.realSize);
 	});
 
+	bot.on('endsong', function (data) {
+	    var id = data.room.metadata.current_dj;
+	    if (typeof __kickList[__afterX][id] === 'number') {
+		__kickList[__afterX][id]--;
+		if (__kickList[__afterX][id] <= 0) {
+		    utils.safeRemove(id);
+		}
+	    }
+	});
 	bot.on('newsong', function (data) {
 	    var id = data.room.metadata.current_dj;
 	    if (__toKick !== null) {
 		utils.safeRemove(__toKick);
 		__toKick = null;
-	    }
-	    if (typeof __kickList[__afterX][id] === 'number') {
-		__kickList[__afterX][id]--;
-		if (__kickList[__afterX][id] <= 0) {
-		    __toKick = id;
-		}
 	    }
 	});
 
@@ -89,7 +92,6 @@ var Kicks = function (depList) {
 		var onQueue = null;
 		var afterX = null;
 		reData = null;
-		self.removeKick(id);
 
 		if (options !== undefined && !options.match(/^ *$/)) {
 		    if(options.charAt(0) !== ' ') {
@@ -138,7 +140,6 @@ var Kicks = function (depList) {
 		else {
 		    if (utils.getCurrentDj() === id) {
 			afterX = 0;
-			__toKick = id;
 		    }
 		    else {
 			afterX = 1;
@@ -149,6 +150,8 @@ var Kicks = function (depList) {
 		    bot.speak('Something\'s not quite right there... :/');
 		    return;
 		}
+
+		self.removeKick(id);
 		var msg = 'OK, I\'ll '+verb+' you ';
 		options = {};
 		if (afterX !== null) {
@@ -195,22 +198,20 @@ var Kicks = function (depList) {
 	if (n === undefined) {
 	    n = queue.getRealQueueSize();
 	}
-	if (n >= numSpots) {
-	    for (var i in djs) {
-		var kickData = self.getKicks({
-		    id:   djs[i],
-		    type: __onQueue });
-		if (typeof kickData === 'number' &&
-		    n-numSpots >= kickData) {
-		    if (djs[i] === utils.getCurrentDj()) {
-			__toKick = djs[i];
-			break;
-		    }
-		    else {
-			utils.safeRemove(djs[i]);
-			result = djs[i];
-			break;
-		    }
+	for (var i in djs) {
+	    var kickData = self.getKicks({
+		id:   djs[i],
+		type: __onQueue });
+	    if (typeof kickData === 'number' &&
+		n-numSpots >= kickData) {
+		if (djs[i] === utils.getCurrentDj()) {
+		    __toKick = djs[i];
+		    break;
+		}
+		else {
+		    utils.safeRemove(djs[i]);
+		    result = djs[i];
+		    break;
 		}
 	    }
 	}
