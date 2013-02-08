@@ -1,6 +1,7 @@
 /////WARNING/////
 The bot is curently undergoing a structural reorganization.
-Do not use any of the files in the v6 folder.
+At this point, running bot.js will be completely stable, but further
+architectural changes are slated for the near future.
 /////WARNING/////
 
 This is a minimally-interactive bot that manages a DJ queue for a turntable.fm
@@ -57,8 +58,8 @@ these steps:
    http://alaingilbert.github.com/Turntable-API/bookmarklet.html
    Paste the data into a new file called config.js, and format it like the
    sample.
-3. Download the bot code (or copy it into a file called bot.js)
-4. Make sure bot.js and config.js are in the same folder
+3. Download the bot code and unzip.
+4. Move config.js to the same folder as bot.js
 5. Run node bot.js
 
 For examples of how to use the commands, please refer to EXAMPLES
