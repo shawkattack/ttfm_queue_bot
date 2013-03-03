@@ -155,7 +155,6 @@ var Kicks = function (depList) {
 		var msg = 'OK, I\'ll '+verb+' you ';
 		options = {};
 		if (afterX !== null) {
-		    options[__afterX] = afterX;
 		    if (afterX === 0) {
 			msg += 'after your song is over';
 		    }
@@ -165,6 +164,11 @@ var Kicks = function (depList) {
 		    else {
 			msg += 'after '+afterX+' more songs';
 		    }
+
+		    if (utils.getCurrentDj() === id) {
+			afterX++;
+		    }
+		    options[__afterX] = afterX;
 		    
 		    if (onQueue !== null) {
 			msg += ' or ';

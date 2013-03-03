@@ -439,7 +439,7 @@ var Utils = function (depList) {
 	if (__oogKickTimeout) {
 	    return;
 	}
-	if (upvotes >= __upvoteThresh) {
+	if (upvotes >= __upvoteThresh*(self.getNumUsers()-1)) {
 	    bot.vote('up');
 	    __hasVoted = true;
 	}

@@ -117,7 +117,9 @@ var Queue = function (depList) {
 			    }
 			}
 		    }
-		    found = __callInfo.name;
+		    if (__callInfo) {
+			found = __callInfo.name;
+		    }
 
 		    if (spot < end) {
 			msg = 'No cutting! >:C '+msg;
@@ -293,14 +295,15 @@ var Queue = function (depList) {
 		}
 		self.cancelCall();
 		__callInfo = __queue[i];
-		tag = utils.tagifyName(__callInfo.name);
+		var tag = utils.tagifyName(__callInfo.name);
+		var remid = __callInfo.id;
 		bot.speak('You\'re up, '+tag+'!');
 		__callTimer = setTimeout(function () {
 		    __callTimer = null;
 		    __callInfo = null;
 
 		    bot.speak('Sorry, '+tag+', you took too long!');
-		    self.dequeue(__queue[i].id);
+		    self.dequeue(remid);
 		    self.callNext();
 		}, __callTime);
 		break;
