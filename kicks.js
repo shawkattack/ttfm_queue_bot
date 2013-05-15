@@ -71,7 +71,7 @@ var Kicks = function (depList) {
 		(reData = data.text.match(
 	            /^ *\/?cancel +(kick|boot|escort|remove)(?: *me) *$/i))) {
 		var result = self.removeKick(id);
-		var verb = reData[1];
+		var verb = reData[1].toLowerCase();
 		if (!result) {
 		    bot.speak('You didn\'t ask me to '+verb+' you :P');
 		    return;
@@ -83,7 +83,7 @@ var Kicks = function (depList) {
 	    }
 	    else if ((reData = data.text.match(
 		    /^ *\/?(kick|boot|escort|remove) *me(.*)$/i))) {
-		var verb = reData[1];
+		var verb = reData[1].toLowerCase();
 		if (!utils.isDj(id)) {
 		    bot.speak('I can\'t '+verb+' you if you\'re not on the decks!');
 		    return;
@@ -107,7 +107,7 @@ var Kicks = function (depList) {
 				onQueue = 2;
 			    }
 			}
-			else if ((reData = options[i].match(/^ +on +q([0-9]+) *$/i))) {
+			else if ((reData = options[i].match(/^ +on +q *([0-9]+) *$/i))) {
 			    if (onQueue != null) {
 				continue;
 			    }

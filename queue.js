@@ -129,6 +129,8 @@ var Queue = function (depList) {
 		if (found == 'someone' || !found) {
 		    console.log('User: '+data.user[0].name);
 		    console.log('Position: '+spot);
+		    console.log('DJs: '+utils.getDjs().length);
+		    console.log('Aways: '+djAways);
 		    console.log('Spots: '+utils.getNumSpots());
 		    console.log('Queue: '+__queue);
 		    console.log('On Call: '+__callInfo);

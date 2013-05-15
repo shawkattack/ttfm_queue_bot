@@ -87,12 +87,7 @@ var Utils = function (depList) {
 	    }
 	    
 	    var users = data.users;
-	    __botsKilled = 0;
 	    for (var i in users) {
-		if (users[i].name.match(/^@ttstats_[0-9]+$/)) {
-		    bot.boot(users[i].userid,(++__botsKilled)+' bots down!');
-		    continue;
-		}
 		var userObj = {
 		    id:   users[i].userid,
 		    name: users[i].name };
@@ -334,6 +329,28 @@ var Utils = function (depList) {
     this.getUserByTag = function (name) {
 	return self.getUserByName(self.untagifyName(name));
     };
+
+    this.refreshUserList = function (callback) {
+        var bot = self.getDep('bot');
+        bot.roomInfo(false, function (data) {
+            var users = data.users;
+            for (var i in users) {
+                var userObj = {
+                    id:   users[i].userid,
+                    name: users[i].name };
+                __userListIN[userObj.id] = userObj;
+                __userListNI[userObj.name.toLowerCase()] = userObj;
+            }
+            var mods = data.room.metadata.moderator_id;
+            for (var i in mods) {
+                if (__userListIN[mods[i]]) {
+                    __userListIN[mods[i]].mod = true;
+                }
+            }
+            
+            callback();
+        });
+    }
 
     this.isMod = function (id) {
 	// Extra logic to return false in case other devs are type-obsessive

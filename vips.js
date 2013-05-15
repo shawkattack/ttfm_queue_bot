@@ -7,9 +7,13 @@ var Vips = function (depList) {
     var __vipList = {};
     var __kickList = {};
 
+    var addKickTimer;
+    var clearKickTimer;
+
     const __kickTime = 30*1000;
     const __kickInc = 5*1000;
-
+	
+    
     VipsModule.call(this,['utils']);
     this.addDependencies(depList);
     this.addHelp({
@@ -20,6 +24,15 @@ var Vips = function (depList) {
 	var bot = this.getDep('bot');
 	var utils = this.getDep('utils');
 
+	addKickTimer = function (id, n) {
+	    __kickList[id] = setTimeout(function () {
+		bot.remDj(id);
+	    },__kickTime+__kickInc*n);
+	}
+	clearKickTimer = function (id) {
+	    clearTimeout(__kickList[id]);
+	}
+	
 	bot.on('update_user', function (data) {
 	    var name = data.name;
 	    var id = data.userid;
@@ -46,15 +59,7 @@ var Vips = function (depList) {
 		       'enjoy the tunes :)',id);
 	    }
 	});
-	
-	var addKickTimer = function (id, n) {
-	    __kickList[id] = setTimeout(function () {
-		bot.remDj(id);
-	    },__kickTime+__kickInc*n);
-	}
-	var clearKickTimer = function (id) {
-	    clearTimeout(__kickList[id]);
-	}
+
 	bot.on('pmmed', function (data) {
 	    var reData = null;
 	    var sender = data.senderid;

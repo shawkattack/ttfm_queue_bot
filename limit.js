@@ -61,14 +61,30 @@ var Limit = function (depList) {
 	    var count;
 	    var currentDj = data.room.metadata.current_dj;
 	    var user = utils.getUserById(currentDj);
-	    var tag = utils.tagifyName(user.name);
+	    var tag = user ? utils.tagifyName(user.name) : '';
 	    count = ++(__songCounts[currentDj]);
 	    if (__limit && count >= __limit && !vips.isVip(currentDj)) {
-		bot.speak('Alright, '+tag+', you\'ve played your '+__limit+
-			  ' songs. Time to step down!');
-		__kickTimers[currentDj] = setTimeout(function () {
-		    utils.safeRemove(currentDj);
-		},__kickTime);
+		if (user) {
+		    bot.speak('Alright, '+tag+', you\'ve played your '+__limit+
+			      ' songs. Time to step down!');
+		    __kickTimers[currentDj] = setTimeout(function () {
+			utils.safeRemove(currentDj);
+		    },__kickTime);
+		}
+		else {
+		    utils.refreshUserList(function () {
+			var innerUser = util.getUserById(currentDj);
+			if (!user) {
+			    return;
+			}
+			var innerTag = utils.tagifyName(innerUser.name);
+			bot.speak('Alright, '+innerTag+', you\'ve played your '+__limit+
+				  ' songs. Time to step down!');
+			__kickTimers[currentDj] = setTimeout(function () {
+                            utils.safeRemove(currentDj);
+			},__kickTime);
+		    });
+		}
 	    }
 	});
 	
