@@ -12,7 +12,7 @@ var Kicks = function (depList) {
     __kickList[__afterX] = {};
     var __toKick = null;
 
-    KicksModule.call(this,['queue','utils']);
+    KicksModule.call(this,['queue','utils','aways']);
     this.addDependencies(depList);
     this.addHelp({
 	'kick me':'Type kick me, and I\'ll remove you after your next song. '+
@@ -32,6 +32,7 @@ var Kicks = function (depList) {
 	var bot = self.getDep('bot');
 	var queue = self.getDep('queue');
 	var utils = self.getDep('utils');
+	var aways = self.getDep('aways');
 
 	queue.on('enqueue', function (data) {
 	    self.findQueueKickme(data.realSpot+1);
@@ -58,8 +59,8 @@ var Kicks = function (depList) {
 	    }
 	});
 
-	// change to aways.on
-	bot.on('rem_dj', function (data) {
+	// TODO debug?
+	aways.on('rem_dj', function (data) {
 	    self.removeKick(data.user[0].userid);
 	});
 	

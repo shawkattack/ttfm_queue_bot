@@ -47,7 +47,8 @@ var Aways = function (depList) {
 
 	bot.on('add_dj', function (data) {
 	    var id = data.user[0].userid;
-	    if (!self.removeAways(id)) {
+	    var isQueueAway = self.isAway(id, __isQueued);
+	    if (!self.removeAways(id) || isQueueAway) {
 		self.emit('add_dj', data);
 	    }
 	    else {
@@ -86,10 +87,10 @@ var Aways = function (depList) {
 	    var name = utils.tagifyName(data.name);
 	    if ((reData = data.text.match(/^ *\/?away *$/i))) {
 		if (utils.isDj(id)) {
-		    var tmp = self.addAway(id, __isDj);
+		    var tmp = self.addAway(id, data.name, __isDj);
 		}
 		else if (queue.getQueuePosition(id) !== false) {
-		    self.addAway(id, __isQueued);
+		    self.addAway(id, data.name, __isQueued);
 		}
 		else {
 		    bot.speak('You don\'t have a spot for me to hold, '+
@@ -124,15 +125,11 @@ var Aways = function (depList) {
 	return result;
     };
 
-    this.addAway = function (id, type) {
+    this.addAway = function (id, name, type) {
 	var bot = this.getDep('bot');
 	var utils = this.getDep('utils');
 	var time = null;
-	var usr = utils.getUserById(id);
-	var name;
-	if (usr) {
-	    name = usr.name;
-	}
+
 	if (type === __isQueued) {
 	    time = __queueAwayTime;
 	}

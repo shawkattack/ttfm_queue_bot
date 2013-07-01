@@ -9,9 +9,11 @@ var Queue = function (depList) {
     var __deleteTimers = {};
 
     var __cheaters = {};
+    var __strikes = {};
 
     const __callTime = 60*1000;
-    const __removeTime = 5*60*1000;
+    const __removeTime = 2*60*1000;
+    const __strikeCooldown = 5*1000;
 
     const __isDj = 'isDj';
     const __isAway = 'isAway';
@@ -51,6 +53,7 @@ var Queue = function (depList) {
 	__deleteTimers = {};
 
 	__cheaters = {};
+	__strikes = {};
     };
 
     this.installHandlers = function () {
@@ -99,7 +102,26 @@ var Queue = function (depList) {
 		}
 	    }
 	    else {
-		__cheaters[data.user[0].userid] = true;
+		var userid = data.user[0].userid;
+		__cheaters[userid] = true;
+		if (!__strikes[userid]) {
+		    __strikes[userid] = {
+			count: 1,
+			timeout: setTimeout(function () {
+			    delete __strikes[userid];
+			}, __strikeCooldown)
+		    };
+		}
+		else {
+		    __strikes[userid].count++;
+		    if (__strikes[userid].count >= 3) {
+			clearTimeout(__strikes[userid].timeout);
+			delete __strikes[userid];
+			msg = 'Learn to wait your turn. Turn off your auto-dj!';
+			bot.bootUser(userid, msg);
+			return;
+		    }
+		}
 		var found = 'someone';
 		var msg = 'I\'m saving that spot for X.';
 		for (var id in djAways) {
@@ -126,6 +148,7 @@ var Queue = function (depList) {
 		    }
 		}
 
+		// Should be able to remove this with the recent patch in aways
 		if (found == 'someone' || !found) {
 		    console.log('User: '+data.user[0].name);
 		    console.log('Position: '+spot);
@@ -141,7 +164,7 @@ var Queue = function (depList) {
 		    msg = 'Sorry, '+msg+' If you want to DJ, type q+ into chat.';
 		}
 		bot.speak(msg.replace('X',found));
-		bot.remDj(data.user[0].userid);
+		bot.remDj(userid);
 	    }
 	});
 	aways.on('rem_dj', function (data) {

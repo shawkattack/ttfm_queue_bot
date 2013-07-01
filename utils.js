@@ -25,6 +25,7 @@ var Utils = function (depList) {
     var __modLockOn = false;
 
     var __botsKilled = 0;
+    var __snagCounter = 0;
     
     const __upvoteThresh = 0.25;
     const __oogWarnThresh = 2;
@@ -106,6 +107,10 @@ var Utils = function (depList) {
 		bot.addDj();
 	    }
 	});
+
+	bot.on('snagged', function (data) {
+	    __snagCounter++;
+	});
 	
 	bot.on('newsong', function (data) {
 	    clearTimeout(__oogKickTimeout);
@@ -154,17 +159,22 @@ var Utils = function (depList) {
 
 	    if (__oogGraceTimeout) {
 		clearTimeout(__oogGraceTimeout);
-		__oogGraceTimeout = null;
 	    }
 	    __oogGraceTimeout = setTimeout(function () {
 		__oogGraceTimeout = null;
 	    },__oogGraceTime);
+
+	    __snagCounter = 0;
 	});
 
 	bot.on('endsong', function (data) {
 	    if (self.getMaxDjs()-self.getNumSpots() >= 3) {
 		bot.remDj(bot.userId);
 	    }
+	    bot.speak(data.room.metadata.current_song.metadata.song + " got :arrow_up: " +
+		      data.room.metadata.upvotes + " :arrow_down: " +  data.room.metadata.downvotes +
+		      " :hearts: " + __snagCounter );
+
 	});
 	bot.on('add_dj', function (data) {
 	    var id = data.user[0].userid;
@@ -294,6 +304,9 @@ var Utils = function (depList) {
 		if ((reData = data.text.match(/^ *\/?\.s *$/i))) {
 		    self.countOOGVote(sender, true);
 		}
+                if ((reData = data.text.match(/^ *\/?(?:oog +cancel|cancel +oog) *$/i))) {
+                    self.cancelOOG();
+                }
 	    }
 
 	    if ((reData = data.text.match(/^ *\/?oog *$/i))) {
@@ -421,7 +434,7 @@ var Utils = function (depList) {
         if (vips.isVip(id)) {
             return;
         }
-        if (__oogGraceTimeout != null) {
+        if (__oogGraceTimeout !== null) {
             return;
         }
 
@@ -444,6 +457,20 @@ var Utils = function (depList) {
 		__oogKickTimeout = null;
 	    }, __oogKickTime);
 	}
+    };
+
+    this.cancelOOG = function () {
+        var bot = self.getDep('bot');
+
+        if (__oogGraceTimeout) {
+            clearTimeout(__oogGraceTimeout);
+        }
+        if (__oogKickTimeout) {
+            clearTimeout(__oogKickTimeout);
+        }
+        __oogGraceTimeout = {};
+        bot.speak('OK, OOG flags have been disabled for this song!');
+        bot.vote('up');
     };
 
     this.doVote = function (voteData) {

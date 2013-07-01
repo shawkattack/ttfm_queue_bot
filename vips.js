@@ -10,7 +10,7 @@ var Vips = function (depList) {
     var addKickTimer;
     var clearKickTimer;
 
-    const __kickTime = 30*1000;
+    const __kickTime = 20*1000;
     const __kickInc = 5*1000;
 	
     
@@ -49,11 +49,15 @@ var Vips = function (depList) {
 	    if (__vipList[id] && __vipList[id] !== name) {
 		__vipList[id] = name;
 	    }
+	    if (__vipMode && !__vipList[id]) {
+		bot.pm('Hi there, we\'re in VIP mode right now! Only VIPs can DJ,'+
+		       ' so sit back and enjoy the music!',id);
+	    }
 	});
 
 	bot.on('add_dj', function (data) {
 	    var id = data.user[0].userid;
-	    if (__vipMode && !__vipList[id]) {
+	    if (__vipMode && !__vipList[id] && id !== bot.userId) {
 		bot.remDj(id);
 		bot.pm('Sorry, we\'re in VIP mode right now! Sit back and '+
 		       'enjoy the tunes :)',id);
@@ -71,11 +75,11 @@ var Vips = function (depList) {
 		    else {
 			self.setVipMode();
 			bot.remDj(bot.userId);
-			msg = 'WARNING! VIP mode has been activated! ';
+			var msg = 'WARNING! VIP mode has been activated! ';
 			var n = 0;
 			var djs = utils.getDjs();
 			for (var i in djs) {
-			    if (!__vipList[djs[i]]) {
+			    if (!__vipList[djs[i]] && djs[i] !== bot.userId) {
 				addKickTimer(djs[i], n);
 				var dj = utils.getUserById(djs[i]);
 				msg += utils.tagifyName(dj.name);
@@ -104,6 +108,9 @@ var Vips = function (depList) {
 		    if (!target) {
 			bot.pm('Sorry, I can\'t find that user :(', sender);
 		    }
+		    else if (target.id === bot.userId) {
+			bot.pm('Don\'t worry, I\'ve got myself covered ;)');
+		    }
 		    else if (self.addVip(target.id)) {
 			bot.pm('Alright, '+target.name+' is now a VIP :)'
 			       ,sender);
@@ -111,20 +118,39 @@ var Vips = function (depList) {
 		}
 		else if ((reData = data.text.match(/^ *\/?unvip +(\S.*?) *$/i))) {
 		    var target = utils.getUserByTag(reData[1]);
+
+		    // If the user isn't in the room, try to find them on the VIP list
 		    if (!target) {
-			bot.pm('Sorry, I can\'t find that user :(', sender);
+			var lcName = reData[1].toLowerCase();
+			for (id in __vipList) {
+			    if (lcName == __vipList[id].toLowerCase()) {
+				target = {
+				    name: __vipList[id],
+				    id:   id };
+				break;
+			    }
+			}
+		    }
+		    if (!target) {
+			bot.pm('Sorry, I can\'t find that user on the list :(', sender);
 		    }
 		    else if (self.removeVip(target.id)) {
 			bot.pm('Alright, '+target.name+' is no longer a VIP :('
 			       ,sender);
+			var msg = 'Sorry, '+utils.tagifyName(target.name)+
+			    ', you\'re no longer a VIP. Please step down!';
+			if (utils.isDj(target.id)) {
+			    addKickTimer(target.id, 0);
+			    bot.speak(msg);
+			}
 		    }
 		}
 		else if ((reData = data.text.match(/^ *\/?reset +vips *$/i))) {
 		    self.reset();
-		    bot.pm('Alright, the VIP list has been cleared :)');
+		    bot.pm('Alright, the VIP list has been cleared :)', sender);
 		}
 		else if ((reData = data.text.match(/^ *\/?vips *$/i))) {
-		    msg = '';
+		    var msg = '';
 
 		    for (var id in __vipList) {
 			msg += __vipList[id];
