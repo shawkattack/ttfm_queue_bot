@@ -178,7 +178,16 @@ var Utils = function (depList) {
 	});
 	bot.on('add_dj', function (data) {
 	    var id = data.user[0].userid;
+		
+		// CONSISTENCY CHECK that works in conjunction with user registration safeguard
+		var idx = self.isDj(id);
+		if (idx !== false) {
+		__djList.splice(idx,1);
+		}
+		// END CONSISTENCY CHECK
+		
 	    __djList.push(id);
+		
 	    if (__currentDj != bot.userId && self.getMaxDjs()-self.getNumSpots() >= 3) {
 		bot.remDj(bot.userId);
 	    }
@@ -200,6 +209,14 @@ var Utils = function (depList) {
 		id:   data.user[0].userid };
 	    __userListIN[userObj.id] = userObj;
 	    __userListNI[userObj.name.toLowerCase()] = userObj;
+		
+		// SAFEGUARD that makes sure the dj list stays synced when new people enter
+		// Code in add_dj handler should keep ordering consistent, so this only needs to check length
+		tempDjList = data.room.metadata.djs;
+		if (__djList.length != tempDjList.length) {
+			__djList = tempDjList;
+		}
+		// END SAFEGUARD
 
 	    if (data.user[0].name.match(/^@ttstats_[0-9]+$/)) {
 		bot.boot(data.user[0].userid, (++__botsKilled)+' bots down!');
