@@ -47,7 +47,7 @@ var BotModule = function (depList, moduleName) {
 	    __depObject[depName] = depLoader.getModule(depName);
 	}
 	for (var x in this) {
-	    if (this[x].override) {
+	    if (this[x] !== null && this[x].override) {
 		console.log('WARNING: Method '+x+' not overridden in '+
 			    __moduleName+' module.');
 	    }
