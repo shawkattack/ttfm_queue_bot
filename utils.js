@@ -284,7 +284,7 @@ var Utils = function (depList) {
 		    bot.pm('Alright, you\'re the bawss! :D',sender);
 		}
 
-		else if ((reData = data.text.match(/^ *\/?demod +(\S.*?) *$/i))) {
+		else if ((reData = data.text.match(/^ *\/?(?:de|un)mod +(\S.*?) *$/i))) {
 		    var user = self.getUserByTag(reData[1]);
 		    if (!user) {
 			bot.pm('Sorry, I can\'t find that user!',sender);
