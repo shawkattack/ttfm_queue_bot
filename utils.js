@@ -172,6 +172,8 @@ var Utils = function (depList) {
 		// Code in add_dj handler should keep ordering consistent, so this only needs to check length
 		tempDjList = data.room.metadata.djs;
 		if (__djList.length != tempDjList.length) {
+			console.log('Replacing DJ List. New list:');
+			console.log(tempDjList);
 			__djList = tempDjList;
 		}
 		// END SAFEGUARD
@@ -191,6 +193,7 @@ var Utils = function (depList) {
 		var idx = self.isDj(id);
 		if (idx !== false) {
 			__djList.splice(idx,1);
+			console.log('Correcting DJ list for '+data.user[0].name);
 		}
 		// END CONSISTENCY CHECK
 		

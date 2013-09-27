@@ -153,7 +153,8 @@ var Queue = function (depList) {
 		    console.log('User: '+data.user[0].name);
 		    console.log('Position: '+spot);
 		    console.log('DJs: '+utils.getDjs().length);
-		    console.log('Aways: '+djAways);
+		    console.log('Aways: ')
+			consile.log(djAways);
 		    console.log('Spots: '+utils.getNumSpots());
 		    console.log('Queue: '+__queue);
 		    console.log('On Call: '+__callInfo);
