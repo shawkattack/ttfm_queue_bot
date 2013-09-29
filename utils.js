@@ -130,6 +130,16 @@ var Utils = function(depList) {
                 __stuckTimer = null;
                 bot.speak('Thank you! :)');
             }
+            
+            // SAFEGUARD that makes sure the dj list stays synced on every new song
+            // Code in add_dj handler should keep ordering consistent, so this only needs to check length
+            // TT data may lag a bit, so only ever reduce the list size
+            var tempDjList = data.room.metadata.djs;
+            if (__djList.length > tempDjList.length) {
+                __djList = tempDjList;
+            }
+            // END SAFEGUARD
+            
             var songLength = data.room.metadata.current_song.metadata.length * 1000;
             __songTimer = setTimeout(function() {
                 __songTimer = null;
@@ -168,18 +178,6 @@ var Utils = function(depList) {
         });
 
         bot.on('endsong', function(data) {
-            // SAFEGUARD that makes sure the dj list stays synced on every new song
-            // Code in add_dj handler should keep ordering consistent, so this only needs to check length
-            var tempDjList = data.room.metadata.djs;
-            if (__djList.length != tempDjList.length) {
-                console.log('Replacing DJ List. New list:');
-                console.log(tempDjList);
-                console.log('Old list:');
-                console.log(__djList);
-                __djList = tempDjList;
-            }
-            // END SAFEGUARD
-
             if (self.getMaxDjs() - self.getNumSpots() >= 3) {
                 bot.remDj(bot.userId);
             }
@@ -189,11 +187,10 @@ var Utils = function(depList) {
         bot.on('add_dj', function(data) {
             var id = data.user[0].userid;
 
-            // CONSISTENCY CHECK that works in conjunction with endsong safeguard
+            // CONSISTENCY CHECK that works in conjunction with newsong safeguard
             var idx = self.isDj(id);
             if (idx !== false) {
                 __djList.splice(idx, 1);
-                console.log('Correcting DJ list for ' + data.user[0].name);
             }
             // END CONSISTENCY CHECK
 
@@ -209,6 +206,7 @@ var Utils = function(depList) {
             if (idx !== false) {
                 __djList.splice(idx, 1);
             }
+            
             if (self.getMaxDjs() - self.getNumSpots() < 2) {
                 bot.addDj();
             }
