@@ -94,7 +94,7 @@ var Kicks = function(depList) {
                     }
                     options = options.split(' or');
                     for (var i in options) {
-                        if ((reData = options[i].match(/^ +on +q *$/i))) {
+                        if ((reData = options[i].match(/^ +on +q(?:ueue)? *$/i))) {
                             if (onQueue !== null) {
                                 continue;
                             }
@@ -102,7 +102,7 @@ var Kicks = function(depList) {
                                 onQueue = 2;
                             }
                         }
-                        else if ((reData = options[i].match(/^ +on +q *([0-9]+) *$/i))) {
+                        else if ((reData = options[i].match(/^ +on +q(?:ueue)? *([0-9]+) *$/i))) {
                             if (onQueue !== null) {
                                 continue;
                             }

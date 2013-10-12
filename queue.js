@@ -222,7 +222,7 @@ var Queue = function(depList) {
                 }
             }
 
-            if ((reData = data.text.match(/^ *\/?q\+ *$/i))) {
+            if ((reData = data.text.match(/^ *\/?(?:q\+|\+q) *$/i))) {
                 result = self.enqueue(data.userid, data.name);
                 msg = '';
                 var doCall = false;
@@ -255,7 +255,7 @@ var Queue = function(depList) {
                     self.callNext();
                 }
             }
-            else if ((reData = data.text.match(/^ *\/?q- *$/i))) {
+            else if ((reData = data.text.match(/^ *\/?(?:q-|-q) *$/i))) {
                 result = self.dequeue(data.userid);
                 if (result === false) {
                     bot.speak('You\'re not on the queue, ' + tag + ' :P');
@@ -264,7 +264,7 @@ var Queue = function(depList) {
                     bot.speak('I\'ve removed you from the queue, ' + tag);
                 }
             }
-            else if ((reData = data.text.match(/^ *\/?q\? *$/i))) {
+            else if ((reData = data.text.match(/^ *\/?(?:q\?|\?q) *$/i))) {
                 self.printQueue();
             }
             else if ((reData = data.text.match(/^ *\/?my *spot *$/i))) {
